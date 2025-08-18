@@ -16,14 +16,6 @@
     <!-- Styles -->
     <link rel="stylesheet" href="css/jarvis.css">
     
-    <!-- Authentication Check -->
-    <script>
-        // Check authentication before loading page
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-    </script>
     
     <style>
         /* Additional styles for projects page */
@@ -1051,8 +1043,7 @@
             }
         }
         
-        // Initialize authentication
-        const authManager = new AuthManager();
+        
         
         // Initialize project filtering for this page
         document.addEventListener('DOMContentLoaded', () => {

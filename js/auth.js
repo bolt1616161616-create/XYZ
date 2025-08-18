@@ -1,205 +1,96 @@
-// Authentication Management System
-class AuthenticationManager {
-    constructor() {
-        this.token = localStorage.getItem('authToken');
-        this.user = JSON.parse(localStorage.getItem('user') || '{}');
-        this.apiBase = '/api/auth';
-        this.init();
+// routes/auth.js
+import express from "express";
+import User from "../js/User.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+const router = express.Router();
+
+// Login
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log("📩 Login attempt:", email, password);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log("❌ User not found");
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    init() {
-        this.setupInterceptors();
-        this.bindGlobalEvents();
+    console.log("🔑 Found user:", user);
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("🔍 Password match?", isMatch);
+
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    res.json({
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+    });
+  } catch (err) {
+    console.error("💥 Login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// Login
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log("📩 Login attempt:", email, password);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log("❌ User not found");
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    setupInterceptors() {
-        // Intercept all fetch requests to add auth headers
-        const originalFetch = window.fetch;
-        window.fetch = async (url, options = {}) => {
-            if (this.token && url.startsWith('/api/')) {
-                options.headers = {
-                    ...options.headers,
-                    'Authorization': `Bearer ${this.token}`
-                };
-            }
-            
-            const response = await originalFetch(url, options);
-            
-            // Handle 401 responses globally
-            if (response.status === 401 && url !== '/api/auth/login') {
-                this.handleUnauthorized();
-            }
-            
-            return response;
-        };
-    }
+    console.log("🔑 Found user:", user);
 
-    bindGlobalEvents() {
-        // Auto-logout on tab close
-        window.addEventListener('beforeunload', () => {
-            if (this.token) {
-                this.updateLastActivity();
-            }
-        });
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("🔍 Password match?", isMatch);
 
-        // Check for token expiration periodically
-        setInterval(() => {
-            this.checkTokenExpiration();
-        }, 60000); // Check every minute
-    }
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    async login(credentials) {
-        try {
-            const response = await fetch(`${this.apiBase}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(credentials)
-            });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-            const data = await response.json();
+    res.json({
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+    });
+  } catch (err) {
+    console.error("💥 Login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
-            if (response.ok) {
-                this.setAuthData(data.token, data.user);
-                return { success: true, data };
-            } else {
-                return { success: false, error: data.message };
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            return { success: false, error: 'Connection failed' };
-        }
-    }
 
-    async register(userData) {
-        try {
-            const response = await fetch(`${this.apiBase}/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(userData)
-            });
+// Logout (optional)
+router.post("/logout", (req, res) => {
+  res.json({ message: "Logged out" });
+});
 
-            const data = await response.json();
+// Get current user
+router.get("/me", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: "No token" });
 
-            if (response.ok) {
-                this.setAuthData(data.token, data.user);
-                return { success: true, data };
-            } else {
-                return { success: false, error: data.message };
-            }
-        } catch (error) {
-            console.error('Registration error:', error);
-            return { success: false, error: 'Connection failed' };
-        }
-    }
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    async logout() {
-        try {
-            if (this.token) {
-                await fetch(`${this.apiBase}/logout`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${this.token}`
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Logout error:', error);
-        } finally {
-            this.clearAuthData();
-            window.location.href = 'login.html';
-        }
-    }
+    const user = await User.findById(decoded.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    setAuthData(token, user) {
-        this.token = token;
-        this.user = user;
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        this.updateLastActivity();
-    }
+    res.json({ user });
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
+  }
+});
 
-    clearAuthData() {
-        this.token = null;
-        this.user = {};
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        localStorage.removeItem('lastActivity');
-    }
-
-    updateLastActivity() {
-        localStorage.setItem('lastActivity', Date.now().toString());
-    }
-
-    checkTokenExpiration() {
-        const lastActivity = localStorage.getItem('lastActivity');
-        if (!lastActivity || !this.token) return;
-
-        const timeSinceLastActivity = Date.now() - parseInt(lastActivity);
-        const maxInactivity = 24 * 60 * 60 * 1000; // 24 hours
-
-        if (timeSinceLastActivity > maxInactivity) {
-            this.handleUnauthorized();
-        }
-    }
-
-    handleUnauthorized() {
-        this.clearAuthData();
-        window.location.href = 'login.html';
-    }
-
-    isAuthenticated() {
-        return !!this.token;
-    }
-
-    getUser() {
-        return this.user;
-    }
-
-    getToken() {
-        return this.token;
-    }
-
-    // Utility method to check if user has specific role
-    hasRole(role) {
-        return this.user.role === role;
-    }
-
-    // Method to refresh user data
-    async refreshUser() {
-        if (!this.token) return false;
-
-        try {
-            const response = await fetch(`${this.apiBase}/me`);
-            if (response.ok) {
-                const data = await response.json();
-                this.user = data.user;
-                localStorage.setItem('user', JSON.stringify(this.user));
-                return true;
-            }
-        } catch (error) {
-            console.error('Failed to refresh user data:', error);
-        }
-        return false;
-    }
-}
-
-// Create global auth manager instance
-window.authManager = new AuthenticationManager();
-
-// Protected route helper
-function requireAuth() {
-    if (!window.authManager.isAuthenticated()) {
-        window.location.href = 'login.html';
-        return false;
-    }
-    return true;
-}
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { AuthenticationManager };
-}
+export default router;
