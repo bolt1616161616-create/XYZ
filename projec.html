@@ -16,6 +16,15 @@
     <!-- Styles -->
     <link rel="stylesheet" href="css/jarvis.css">
     
+    <!-- Authentication Check -->
+    <script>
+        // Check authentication before loading page
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+    </script>
+    
     <style>
         /* Additional styles for projects page */
         .projects-hero {
@@ -221,6 +230,9 @@
                 <a href="index.html#contact" class="nav-link">
                     <span>CONTACT</span>
                 </a>
+                <button class="nav-link" id="logoutBtn" style="background: none; border: none; cursor: pointer;">
+                    <span>LOGOUT</span>
+                </button>
             </div>
             
             <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
@@ -292,7 +304,7 @@
                 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/HTML.jpg" alt="Interactive Window System">
+                        <img src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg" alt="Interactive Window System">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/HTMLTasks/draggable.html" class="project-link">
@@ -316,7 +328,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/html5.jpg" alt="Live Code Interpreter">
+                        <img src="https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg" alt="Live Code Interpreter">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/html_live_interpreter.html" class="project-link">
@@ -340,7 +352,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/html4.jpg" alt="Image Processing System">
+                        <img src="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg" alt="Image Processing System">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/HTMLTasks/upload_image.html" class="project-link">
@@ -364,7 +376,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/pq2.jpg" alt="Voice Synthesis">
+                        <img src="https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg" alt="Voice Synthesis">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/HTMLTasks/text_to_speak.html" class="project-link">
@@ -388,7 +400,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/p1.jpg" alt="Camera System">
+                        <img src="https://images.pexels.com/photos/1181354/pexels-photo-1181354.jpeg" alt="Camera System">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/js_camera.html" class="project-link">
@@ -412,7 +424,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/html2.jpg" alt="Live Stream">
+                        <img src="https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg" alt="Live Stream">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/cam_live.html" class="project-link">
@@ -439,7 +451,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/p6.jpg" alt="Email System">
+                        <img src="https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg" alt="Email System">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/send_bulk_email.html" class="project-link">
@@ -463,7 +475,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/wp.jpg" alt="WhatsApp Integration">
+                        <img src="https://images.pexels.com/photos/1181533/pexels-photo-1181533.jpeg" alt="WhatsApp Integration">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/whatsapp.html" class="project-link">
@@ -487,7 +499,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/h6.jpg" alt="SMS System">
+                        <img src="https://images.pexels.com/photos/1181772/pexels-photo-1181772.jpeg" alt="SMS System">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/python_sms.html" class="project-link">
@@ -514,7 +526,7 @@
 
                 <div class="project-card" data-category="ai">
                     <div class="project-image">
-                        <img src="Port/images/manas.png" alt="ManasMitra AI">
+                        <img src="https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg" alt="ManasMitra AI">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="https://www.linkedin.com/search/results/all/?heroEntityKey=urn%3Ali%3Aorganization%3A104112688&keywords=Manas%20Mitra&origin=ENTITY_SEARCH_HOME_HISTORY" class="project-link" target="_blank">
@@ -543,7 +555,7 @@
 
                 <div class="project-card" data-category="ai">
                     <div class="project-image">
-                        <img src="Port/images/aws5.jpg" alt="AI Text Generator">
+                        <img src="https://images.pexels.com/photos/8386434/pexels-photo-8386434.jpeg" alt="AI Text Generator">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/gemini.html" class="project-link">
@@ -570,7 +582,7 @@
 
                 <div class="project-card" data-category="devops">
                     <div class="project-image">
-                        <img src="Port/images/docker.jpg" alt="Container Management">
+                        <img src="https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg" alt="Container Management">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/docker.html" class="project-link">
@@ -594,7 +606,7 @@
 
                 <div class="project-card" data-category="devops">
                     <div class="project-image">
-                        <img src="Port/images/linux.jpg" alt="Linux Terminal">
+                        <img src="https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg" alt="Linux Terminal">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/linux.html" class="project-link">
@@ -618,7 +630,7 @@
 
                 <div class="project-card" data-category="devops">
                     <div class="project-image">
-                        <img src="Port/images/linuxman.jpg" alt="SSH Controller">
+                        <img src="https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg" alt="SSH Controller">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/ssh_linux.html" class="project-link">
@@ -645,7 +657,7 @@
 
                 <div class="project-card" data-category="aws">
                     <div class="project-image">
-                        <img src="Port/images/aws1.jpg" alt="AWS Management">
+                        <img src="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg" alt="AWS Management">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/AWSfiles/boto3.html" class="project-link">
@@ -669,7 +681,7 @@
 
                 <div class="project-card" data-category="aws">
                     <div class="project-image">
-                        <img src="Port/images/aws2.jpg" alt="IAM Management">
+                        <img src="https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg" alt="IAM Management">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/AWSfiles/create_iam.html" class="project-link">
@@ -693,7 +705,7 @@
 
                 <div class="project-card" data-category="aws">
                     <div class="project-image">
-                        <img src="Port/images/aws3.jpg" alt="DynamoDB">
+                        <img src="https://images.pexels.com/photos/1181678/pexels-photo-1181678.jpeg" alt="DynamoDB">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/AWSfiles/dynamocgi.html" class="project-link">
@@ -717,7 +729,7 @@
 
                 <div class="project-card" data-category="aws">
                     <div class="project-image">
-                        <img src="Port/images/aws4.jpg" alt="EC2 Metrics">
+                        <img src="https://images.pexels.com/photos/1181679/pexels-photo-1181679.jpeg" alt="EC2 Metrics">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/AWSfiles/ec2metrics.html" class="project-link">
@@ -741,7 +753,7 @@
 
                 <div class="project-card" data-category="aws">
                     <div class="project-image">
-                        <img src="Port/images/aws5.jpg" alt="Log Analysis">
+                        <img src="https://images.pexels.com/photos/1181680/pexels-photo-1181680.jpeg" alt="Log Analysis">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/AWSfiles/get_logs.html" class="project-link">
@@ -765,7 +777,7 @@
 
                 <div class="project-card" data-category="aws">
                     <div class="project-image">
-                        <img src="Port/images/aws6.jpg" alt="S3 Management">
+                        <img src="https://images.pexels.com/photos/1181681/pexels-photo-1181681.jpeg" alt="S3 Management">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/AWSfiles/s3_bucket.html" class="project-link">
@@ -789,7 +801,7 @@
 
                 <div class="project-card" data-category="aws">
                     <div class="project-image">
-                        <img src="Port/images/aws7.jpg" alt="SNS Service">
+                        <img src="https://images.pexels.com/photos/1181682/pexels-photo-1181682.jpeg" alt="SNS Service">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/AWSfiles/sns.html" class="project-link">
@@ -816,7 +828,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/p5.jpg" alt="Search Engine">
+                        <img src="https://images.pexels.com/photos/1181683/pexels-photo-1181683.jpeg" alt="Search Engine">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/google_search.html" class="project-link">
@@ -840,7 +852,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/p4.jpg" alt="Geolocation">
+                        <img src="https://images.pexels.com/photos/1181684/pexels-photo-1181684.jpeg" alt="Geolocation">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/geo_coordinates.html" class="project-link">
@@ -864,7 +876,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/p3.jpg" alt="Volume Control">
+                        <img src="https://images.pexels.com/photos/1181685/pexels-photo-1181685.jpeg" alt="Volume Control">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/adj_vol.html" class="project-link">
@@ -888,7 +900,7 @@
 
                 <div class="project-card" data-category="web">
                     <div class="project-image">
-                        <img src="Port/images/h6.jpg" alt="Command Suggestions">
+                        <img src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg" alt="Command Suggestions">
                         <div class="project-overlay">
                             <div class="project-links">
                                 <a href="Port/Menu/cmdsuggest.html" class="project-link">
@@ -960,6 +972,88 @@
 
     <script src="js/jarvis.js"></script>
     <script>
+        // Authentication management
+        class AuthManager {
+            constructor() {
+                this.token = localStorage.getItem('authToken');
+                this.user = JSON.parse(localStorage.getItem('user') || '{}');
+                this.init();
+            }
+            
+            init() {
+                this.verifyAuth();
+                this.bindLogout();
+                this.displayUserInfo();
+            }
+            
+            async verifyAuth() {
+                if (!this.token) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/auth/me', {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Invalid token');
+                    }
+                    
+                    const data = await response.json();
+                    this.user = data.user;
+                    localStorage.setItem('user', JSON.stringify(this.user));
+                } catch (error) {
+                    console.error('Auth verification failed:', error);
+                    this.logout();
+                }
+            }
+            
+            bindLogout() {
+                const logoutBtn = document.getElementById('logoutBtn');
+                logoutBtn.addEventListener('click', () => this.logout());
+            }
+            
+            logout() {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+            
+            displayUserInfo() {
+                if (this.user.firstName) {
+                    // Add user info to the interface
+                    const userInfo = document.createElement('div');
+                    userInfo.className = 'user-info';
+                    userInfo.style.cssText = `
+                        position: fixed;
+                        top: 100px;
+                        left: 2rem;
+                        background: rgba(0, 0, 0, 0.9);
+                        border: 1px solid var(--jarvis-blue);
+                        border-radius: 10px;
+                        padding: 1rem;
+                        color: var(--jarvis-blue);
+                        font-family: 'Orbitron', monospace;
+                        font-size: 0.8rem;
+                        z-index: 1000;
+                    `;
+                    userInfo.innerHTML = `
+                        <div>USER: ${this.user.firstName} ${this.user.lastName}</div>
+                        <div>STATUS: AUTHENTICATED</div>
+                        <div>ROLE: ${this.user.role.toUpperCase()}</div>
+                    `;
+                    document.body.appendChild(userInfo);
+                }
+            }
+        }
+        
+        // Initialize authentication
+        const authManager = new AuthManager();
+        
         // Initialize project filtering for this page
         document.addEventListener('DOMContentLoaded', () => {
             jarvisPortfolio.initProjectFiltering();
@@ -994,7 +1088,7 @@
                     });
                     
                     if (query) {
-                        jarvisPortfolio.showNotification('JARVIS', `Searching database for: ${query}`);
+                        jarvisPortfolio.showNotification('YASH', `Searching database for: ${query}`);
                     }
                 });
             }

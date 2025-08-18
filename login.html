@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - JARVIS Portfolio Access</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/jarvis.css">
+    
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .auth-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--jarvis-blue);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--glow-intense);
+        }
+        
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--jarvis-blue), var(--jarvis-cyan), var(--jarvis-blue));
+            animation: auth-scan 2s linear infinite;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, var(--jarvis-blue), var(--jarvis-cyan));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: white;
+            animation: logo-pulse 2s ease-in-out infinite;
+        }
+        
+        .auth-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--jarvis-blue);
+            text-shadow: var(--glow-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-subtitle {
+            color: var(--jarvis-cyan);
+            font-size: 0.9rem;
+            text-shadow: var(--glow-secondary);
+        }
+        
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            position: relative;
+        }
+        
+        .form-label {
+            display: block;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            color: var(--jarvis-cyan);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--jarvis-blue);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'Rajdhani', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--jarvis-cyan);
+            box-shadow: var(--glow-secondary);
+            background: rgba(0, 0, 0, 0.9);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--jarvis-blue);
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .auth-submit {
+            background: linear-gradient(45deg, var(--jarvis-blue), var(--jarvis-cyan));
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .auth-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-intense);
+        }
+        
+        .auth-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .auth-links {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        
+        .auth-link {
+            color: var(--jarvis-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-link:hover {
+            color: var(--jarvis-cyan);
+            text-shadow: var(--glow-secondary);
+        }
+        
+        .error-message {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .success-message {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--jarvis-green);
+            color: var(--jarvis-green);
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        @keyframes auth-scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes logo-pulse {
+            0%, 100% { box-shadow: 0 0 20px var(--jarvis-blue); }
+            50% { box-shadow: 0 0 40px var(--jarvis-blue), 0 0 60px var(--jarvis-cyan); }
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Background -->
+    <div class="matrix-bg"></div>
+    
+    <!-- Holographic Grid -->
+    <div class="holo-grid"></div>
+    
+    <!-- Scan Lines -->
+    <div class="scan-lines"></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">Y.A</div>
+                <h1 class="auth-title">ACCESS CONTROL</h1>
+                <p class="auth-subtitle">Enter credentials to access portfolio database</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="password" placeholder="Enter your password" required>
+                    <button type="button" class="password-toggle" id="passwordToggle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <button type="submit" class="auth-submit" id="submitBtn">
+                    <span class="loading-spinner" id="loadingSpinner"></span>
+                    <span id="submitText">Initialize Access</span>
+                </button>
+            </form>
+            
+            <div class="auth-links">
+                <p>Need access credentials? <a href="signup.html" class="auth-link">Register New User</a></p>
+                <p><a href="index.html" class="auth-link">← Return to Main Interface</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AuthSystem {
+            constructor() {
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.checkExistingAuth();
+            }
+            
+            bindEvents() {
+                const form = document.getElementById('loginForm');
+                const passwordToggle = document.getElementById('passwordToggle');
+                const passwordInput = document.getElementById('password');
+                
+                form.addEventListener('submit', (e) => this.handleLogin(e));
+                
+                passwordToggle.addEventListener('click', () => {
+                    const type = passwordInput.type === 'password' ? 'text' : 'password';
+                    passwordInput.type = type;
+                    passwordToggle.innerHTML = type === 'password' 
+                        ? '<i class="fas fa-eye"></i>' 
+                        : '<i class="fas fa-eye-slash"></i>';
+                });
+            }
+            
+            checkExistingAuth() {
+                const token = localStorage.getItem('authToken');
+                if (token) {
+                    // Verify token with server
+                    this.verifyToken(token);
+                }
+            }
+            
+            async verifyToken(token) {
+                try {
+                    const response = await fetch('/api/auth/me', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // Token is valid, redirect to projects
+                        window.location.href = 'projec.html';
+                    } else {
+                        // Token is invalid, remove it
+                        localStorage.removeItem('authToken');
+                    }
+                } catch (error) {
+                    console.error('Token verification error:', error);
+                    localStorage.removeItem('authToken');
+                }
+            }
+            
+            async handleLogin(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const submitBtn = document.getElementById('submitBtn');
+                const submitText = document.getElementById('submitText');
+                const loadingSpinner = document.getElementById('loadingSpinner');
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                loadingSpinner.style.display = 'inline-block';
+                submitText.textContent = 'Authenticating...';
+                
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // Store token
+                        localStorage.setItem('authToken', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        
+                        this.showSuccess('Access granted. Redirecting to portfolio...');
+                        
+                        setTimeout(() => {
+                            window.location.href = 'projec.html';
+                        }, 1500);
+                    } else {
+                        this.showError(data.message);
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showError('Connection failed. Please try again.');
+                } finally {
+                    submitBtn.disabled = false;
+                    loadingSpinner.style.display = 'none';
+                    submitText.textContent = 'Initialize Access';
+                }
+            }
+            
+            showError(message) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 5000);
+            }
+            
+            showSuccess(message) {
+                const successDiv = document.getElementById('successMessage');
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+            }
+        }
+        
+        // Initialize auth system
+        new AuthSystem();
+    </script>
+</body>
+</html>
