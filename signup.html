@@ -25,6 +25,7 @@
             --text-muted: #888888;
             --glow-primary: 0 0 20px var(--primary-blue);
             --glow-secondary: 0 0 30px var(--primary-cyan);
+            --glow-intense: 0 0 40px var(--primary-blue), 0 0 80px var(--primary-cyan);
         }
 
         * {
@@ -76,16 +77,17 @@
         }
         
         .auth-card {
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             border: 2px solid var(--primary-blue);
             border-radius: 20px;
-            padding: 2rem;
+            padding: 2.5rem;
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
             position: relative;
             overflow: hidden;
-            box-shadow: var(--glow-primary);
-            backdrop-filter: blur(10px);
+            box-shadow: var(--glow-intense);
+            backdrop-filter: blur(20px);
+            animation: card-entrance 1s ease-out;
         }
         
         .auth-card::before {
@@ -105,34 +107,49 @@
         }
         
         .auth-logo {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             background: linear-gradient(45deg, var(--primary-blue), var(--primary-cyan));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.5rem;
             font-family: 'Orbitron', monospace;
             font-weight: 900;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             color: white;
-            animation: logo-pulse 2s ease-in-out infinite;
+            animation: logo-pulse 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .auth-logo::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border: 2px solid var(--primary-cyan);
+            border-radius: 50%;
+            animation: ring-rotate 8s linear infinite;
         }
         
         .auth-title {
             font-family: 'Orbitron', monospace;
-            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
             font-weight: 900;
             color: var(--primary-blue);
             text-shadow: var(--glow-primary);
             margin-bottom: 0.5rem;
+            letter-spacing: 2px;
         }
         
         .auth-subtitle {
             color: var(--primary-cyan);
-            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
             text-shadow: var(--glow-secondary);
+            font-weight: 500;
         }
         
         .auth-form {
@@ -163,20 +180,22 @@
             font-family: 'Orbitron', monospace;
             font-size: 0.8rem;
             color: var(--primary-cyan);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-weight: 600;
         }
         
         .form-input {
             width: 100%;
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid var(--primary-blue);
-            border-radius: 8px;
+            padding: 1.2rem 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--primary-blue);
+            border-radius: 12px;
             color: var(--text-primary);
             font-size: 1rem;
             font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
             transition: all 0.3s ease;
         }
         
@@ -185,20 +204,23 @@
             border-color: var(--primary-cyan);
             box-shadow: var(--glow-secondary);
             background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-2px);
         }
         
         .form-input::placeholder {
             color: var(--text-muted);
+            font-weight: 400;
         }
         
         .form-input.error {
             border-color: var(--primary-red);
-            box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
+            animation: shake 0.5s ease-in-out;
         }
 
         .form-input.success {
             border-color: var(--primary-green);
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
         }
         
         .password-toggle {
@@ -210,106 +232,51 @@
             border: none;
             color: var(--primary-blue);
             cursor: pointer;
-            font-size: 1rem;
-            margin-top: 1rem;
-            transition: color 0.3s ease;
+            font-size: 1.1rem;
+            margin-top: 1.2rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 50%;
         }
 
         .password-toggle:hover {
             color: var(--primary-cyan);
-        }
-        
-        .auth-submit {
-            background: linear-gradient(45deg, var(--primary-blue), var(--primary-cyan));
-            color: white;
-            border: none;
-            padding: 1rem;
-            border-radius: 8px;
-            font-family: 'Orbitron', monospace;
-            font-weight: 700;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        
-        .auth-submit:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
-        }
-        
-        .auth-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .auth-links {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(0, 212, 255, 0.3);
-        }
-        
-        .auth-link {
-            color: var(--primary-blue);
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .auth-link:hover {
-            color: var(--primary-cyan);
-            text-shadow: var(--glow-secondary);
-        }
-        
-        .message {
-            padding: 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            display: none;
-            animation: slideIn 0.3s ease;
-        }
-
-        .error-message {
-            background: rgba(255, 68, 68, 0.1);
-            border: 1px solid var(--primary-red);
-            color: var(--primary-red);
-        }
-        
-        .success-message {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid var(--primary-green);
-            color: var(--primary-green);
+            background: rgba(0, 212, 255, 0.1);
         }
         
         .password-strength {
-            margin-top: 0.5rem;
+            margin-top: 0.8rem;
             font-size: 0.8rem;
+            font-family: 'Orbitron', monospace;
         }
         
         .strength-bar {
             width: 100%;
-            height: 4px;
+            height: 6px;
             background: rgba(0, 212, 255, 0.2);
-            border-radius: 2px;
+            border-radius: 3px;
             overflow: hidden;
-            margin-top: 0.3rem;
+            margin-top: 0.5rem;
+            position: relative;
         }
         
         .strength-fill {
             height: 100%;
-            border-radius: 2px;
+            border-radius: 3px;
             transition: all 0.3s ease;
             width: 0%;
+            position: relative;
+        }
+
+        .strength-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: strength-shine 1.5s ease-in-out infinite;
         }
         
         .strength-weak .strength-fill {
@@ -332,6 +299,136 @@
             width: 100%;
         }
         
+        .auth-submit {
+            background: linear-gradient(45deg, var(--primary-blue), var(--primary-cyan));
+            color: white;
+            border: none;
+            padding: 1.3rem;
+            border-radius: 12px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .auth-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .auth-submit:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.6);
+        }
+
+        .auth-submit:hover:not(:disabled)::before {
+            left: 100%;
+        }
+        
+        .auth-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .auth-links {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        
+        .auth-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 0.2rem;
+        }
+
+        .auth-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: rgba(0, 212, 255, 0.1);
+            transition: width 0.3s ease;
+            border-radius: 8px;
+            z-index: -1;
+        }
+        
+        .auth-link:hover {
+            color: var(--primary-cyan);
+            text-shadow: var(--glow-secondary);
+        }
+
+        .auth-link:hover::before {
+            width: 100%;
+        }
+        
+        .message {
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            animation: slideIn 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .error-message {
+            background: rgba(255, 68, 68, 0.15);
+            border: 1px solid var(--primary-red);
+            color: var(--primary-red);
+        }
+
+        .error-message::before {
+            background: var(--primary-red);
+        }
+        
+        .success-message {
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid var(--primary-green);
+            color: var(--primary-green);
+        }
+
+        .success-message::before {
+            background: var(--primary-green);
+        }
+        
         .loading-spinner {
             width: 20px;
             height: 20px;
@@ -341,6 +438,23 @@
             animation: spin 1s linear infinite;
         }
 
+        .form-validation {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: 'Orbitron', monospace;
+            display: none;
+        }
+
+        .form-validation.error {
+            color: var(--primary-red);
+            display: block;
+        }
+
+        .form-validation.success {
+            color: var(--primary-green);
+            display: block;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .auth-container {
@@ -348,31 +462,81 @@
             }
             
             .auth-card {
-                padding: 1.5rem;
+                padding: 2rem;
                 margin: 1rem;
+                border-radius: 15px;
             }
             
             .auth-logo {
-                width: 60px;
-                height: 60px;
-                font-size: 1.2rem;
+                width: 80px;
+                height: 80px;
+                font-size: 1.4rem;
             }
         }
 
         @media (max-width: 480px) {
             .auth-card {
-                padding: 1rem;
-                border-radius: 15px;
+                padding: 1.5rem;
+                border-radius: 12px;
             }
             
             .form-input {
-                padding: 0.8rem;
-                font-size: 0.9rem;
+                padding: 1rem;
+                font-size: 0.95rem;
             }
             
             .auth-submit {
-                padding: 0.8rem;
+                padding: 1rem;
                 font-size: 0.9rem;
+                letter-spacing: 1px;
+            }
+
+            .auth-logo {
+                width: 70px;
+                height: 70px;
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .auth-container {
+                padding: 0.25rem;
+            }
+
+            .auth-card {
+                padding: 1.2rem;
+            }
+        }
+
+        /* Landscape orientation for mobile */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .auth-container {
+                padding: 0.5rem;
+            }
+
+            .auth-card {
+                padding: 1.5rem;
+                max-height: 95vh;
+                overflow-y: auto;
+            }
+
+            .auth-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 1.2rem;
+                margin-bottom: 1rem;
+            }
+
+            .auth-header {
+                margin-bottom: 1.5rem;
+            }
+
+            .form-row {
+                gap: 0.8rem;
+            }
+
+            .auth-form {
+                gap: 1.2rem;
             }
         }
 
@@ -390,6 +554,22 @@
             50% { 
                 box-shadow: 0 0 40px var(--primary-blue), 0 0 60px var(--primary-cyan);
                 transform: scale(1.05);
+            }
+        }
+
+        @keyframes ring-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes card-entrance {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
             }
         }
         
@@ -411,6 +591,38 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes strength-shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+            .auth-card {
+                border-width: 3px;
+                background: rgba(0, 0, 0, 1);
+            }
+            
+            .form-input {
+                border-width: 3px;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
@@ -435,28 +647,32 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">First Name</label>
-                        <input type="text" class="form-input" id="firstName" placeholder="Enter first name" required>
+                        <input type="text" class="form-input" id="firstName" placeholder="Enter first name" required autocomplete="given-name">
+                        <div class="form-validation" id="firstNameValidation"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Last Name</label>
-                        <input type="text" class="form-input" id="lastName" placeholder="Enter last name" required>
+                        <input type="text" class="form-input" id="lastName" placeholder="Enter last name" required autocomplete="family-name">
+                        <div class="form-validation" id="lastNameValidation"></div>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Username</label>
-                    <input type="text" class="form-input" id="username" placeholder="Choose a username" required>
+                    <input type="text" class="form-input" id="username" placeholder="Choose a username" required autocomplete="username">
+                    <div class="form-validation" id="usernameValidation"></div>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Email Address</label>
-                    <input type="email" class="form-input" id="email" placeholder="Enter your email" required>
+                    <input type="email" class="form-input" id="email" placeholder="Enter your email" required autocomplete="email">
+                    <div class="form-validation" id="emailValidation"></div>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="password" placeholder="Create a password" required>
-                    <button type="button" class="password-toggle" id="passwordToggle">
+                    <input type="password" class="form-input" id="password" placeholder="Create a password" required autocomplete="new-password">
+                    <button type="button" class="password-toggle" id="passwordToggle" aria-label="Toggle password visibility">
                         <i class="fas fa-eye"></i>
                     </button>
                     <div class="password-strength" id="passwordStrength">
@@ -465,15 +681,18 @@
                         </div>
                         <span class="strength-text">Password strength</span>
                     </div>
+                    <div class="form-validation" id="passwordValidation"></div>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Confirm Password</label>
-                    <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm your password" required>
+                    <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm your password" required autocomplete="new-password">
+                    <div class="form-validation" id="confirmPasswordValidation"></div>
                 </div>
                 
                 <button type="submit" class="auth-submit" id="submitBtn">
                     <span id="submitText">Create Access Profile</span>
+                    <i class="fas fa-user-plus"></i>
                 </button>
             </form>
             
@@ -493,6 +712,7 @@
             init() {
                 this.bindEvents();
                 this.checkExistingAuth();
+                this.addRealTimeValidation();
             }
             
             bindEvents() {
@@ -514,20 +734,103 @@
                 
                 passwordInput.addEventListener('input', () => {
                     this.checkPasswordStrength(passwordInput.value);
+                    this.validatePasswordMatch();
                 });
                 
                 confirmPasswordInput.addEventListener('input', () => {
                     this.validatePasswordMatch();
                 });
+            }
 
-                // Real-time validation
-                document.getElementById('email').addEventListener('blur', () => {
-                    this.validateEmail();
-                });
+            addRealTimeValidation() {
+                const inputs = [
+                    { id: 'firstName', validator: this.validateName },
+                    { id: 'lastName', validator: this.validateName },
+                    { id: 'username', validator: this.validateUsername },
+                    { id: 'email', validator: this.validateEmail },
+                    { id: 'password', validator: this.validatePassword }
+                ];
 
-                document.getElementById('username').addEventListener('blur', () => {
-                    this.validateUsername();
+                inputs.forEach(({ id, validator }) => {
+                    const input = document.getElementById(id);
+                    const validation = document.getElementById(`${id}Validation`);
+
+                    input.addEventListener('blur', () => {
+                        const result = validator.call(this, input.value);
+                        this.showValidation(input, validation, result);
+                    });
+
+                    input.addEventListener('input', () => {
+                        if (input.classList.contains('error')) {
+                            const result = validator.call(this, input.value);
+                            this.showValidation(input, validation, result);
+                        }
+                    });
                 });
+            }
+
+            showValidation(input, validationDiv, result) {
+                input.classList.remove('error', 'success');
+                validationDiv.classList.remove('error', 'success');
+                validationDiv.style.display = 'none';
+
+                if (result.isValid) {
+                    input.classList.add('success');
+                    if (result.message) {
+                        validationDiv.textContent = result.message;
+                        validationDiv.classList.add('success');
+                        validationDiv.style.display = 'block';
+                    }
+                } else {
+                    input.classList.add('error');
+                    validationDiv.textContent = result.message;
+                    validationDiv.classList.add('error');
+                    validationDiv.style.display = 'block';
+                }
+            }
+
+            validateName(name) {
+                if (!name.trim()) {
+                    return { isValid: false, message: 'Name is required' };
+                }
+                if (name.trim().length < 2) {
+                    return { isValid: false, message: 'Name must be at least 2 characters' };
+                }
+                return { isValid: true, message: 'Valid name' };
+            }
+
+            validateUsername(username) {
+                if (!username.trim()) {
+                    return { isValid: false, message: 'Username is required' };
+                }
+                if (username.length < 3) {
+                    return { isValid: false, message: 'Username must be at least 3 characters' };
+                }
+                if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                    return { isValid: false, message: 'Username can only contain letters, numbers, and underscores' };
+                }
+                return { isValid: true, message: 'Username available' };
+            }
+
+            validateEmail(email) {
+                if (!email.trim()) {
+                    return { isValid: false, message: 'Email is required' };
+                }
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    return { isValid: false, message: 'Please enter a valid email address' };
+                }
+                return { isValid: true, message: 'Valid email address' };
+            }
+
+            validatePassword(password) {
+                if (!password) {
+                    return { isValid: false, message: 'Password is required' };
+                }
+                if (password.length < 6) {
+                    return { isValid: false, message: 'Password must be at least 6 characters' };
+                }
+                return { isValid: true, message: 'Password meets requirements' };
             }
             
             async checkExistingAuth() {
@@ -541,7 +844,7 @@
                         });
                         
                         if (response.ok) {
-                            window.location.href = 'projec.html';
+                            window.location.href = 'portfolio.html';
                         } else {
                             localStorage.removeItem('authToken');
                             localStorage.removeItem('user');
@@ -596,40 +899,24 @@
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
                 const confirmInput = document.getElementById('confirmPassword');
+                const validation = document.getElementById('confirmPasswordValidation');
                 
                 if (confirmPassword && password !== confirmPassword) {
                     confirmInput.classList.add('error');
                     confirmInput.classList.remove('success');
-                } else if (confirmPassword) {
+                    validation.textContent = 'Passwords do not match';
+                    validation.classList.add('error');
+                    validation.classList.remove('success');
+                    validation.style.display = 'block';
+                } else if (confirmPassword && password === confirmPassword) {
                     confirmInput.classList.add('success');
                     confirmInput.classList.remove('error');
-                }
-            }
-
-            validateEmail() {
-                const email = document.getElementById('email').value;
-                const emailInput = document.getElementById('email');
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                
-                if (email && !emailRegex.test(email)) {
-                    emailInput.classList.add('error');
-                    emailInput.classList.remove('success');
-                } else if (email) {
-                    emailInput.classList.add('success');
-                    emailInput.classList.remove('error');
-                }
-            }
-
-            validateUsername() {
-                const username = document.getElementById('username').value;
-                const usernameInput = document.getElementById('username');
-                
-                if (username && username.length < 3) {
-                    usernameInput.classList.add('error');
-                    usernameInput.classList.remove('success');
-                } else if (username) {
-                    usernameInput.classList.add('success');
-                    usernameInput.classList.remove('error');
+                    validation.textContent = 'Passwords match';
+                    validation.classList.add('success');
+                    validation.classList.remove('error');
+                    validation.style.display = 'block';
+                } else {
+                    validation.style.display = 'none';
                 }
             }
             
@@ -701,8 +988,12 @@
                         
                         this.showSuccess('Profile created successfully! Redirecting to portfolio...');
                         
+                        // Add success animation
+                        document.querySelector('.auth-card').style.transform = 'scale(1.05)';
+                        document.querySelector('.auth-card').style.boxShadow = '0 0 50px var(--primary-green)';
+                        
                         setTimeout(() => {
-                            window.location.href = 'projec.html';
+                            window.location.href = 'portfolio.html';
                         }, 1500);
                     } else {
                         this.showError(data.message || 'Registration failed');
@@ -712,7 +1003,7 @@
                     this.showError('Connection failed. Please check your internet connection and try again.');
                 } finally {
                     submitBtn.disabled = false;
-                    submitText.textContent = 'Create Access Profile';
+                    submitText.innerHTML = 'Create Access Profile <i class="fas fa-user-plus"></i>';
                 }
             }
             
@@ -721,8 +1012,12 @@
                 errorDiv.textContent = message;
                 errorDiv.style.display = 'block';
                 
+                // Add shake animation to card
+                document.querySelector('.auth-card').style.animation = 'shake 0.5s ease-in-out';
+                
                 setTimeout(() => {
                     errorDiv.style.display = 'none';
+                    document.querySelector('.auth-card').style.animation = '';
                 }, 5000);
             }
             

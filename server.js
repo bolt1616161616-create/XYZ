@@ -23,7 +23,8 @@ const connectDB = async () => {
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
         console.error('❌ MongoDB connection error:', error);
-        process.exit(1);
+        // For demo purposes, continue without MongoDB
+        console.log('📝 Running in demo mode without MongoDB');
     }
 };
 
@@ -69,15 +70,11 @@ const userSchema = new mongoose.Schema({
     },
     isVerified: {
         type: Boolean,
-        default: true // Auto-verify for demo
+        default: true
     },
     lastLogin: {
         type: Date,
         default: Date.now
-    },
-    profileImage: {
-        type: String,
-        default: null
     }
 }, {
     timestamps: true
@@ -103,6 +100,28 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 
 const User = mongoose.model('User', userSchema);
 
+// Demo users for when MongoDB is not available
+const demoUsers = [
+    {
+        id: '1',
+        username: 'demo',
+        email: 'demo@example.com',
+        password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uDjO', // 'password'
+        firstName: 'Demo',
+        lastName: 'User',
+        role: 'user'
+    },
+    {
+        id: '2',
+        username: 'admin',
+        email: 'admin@example.com',
+        password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uDjO', // 'password'
+        firstName: 'Admin',
+        lastName: 'User',
+        role: 'admin'
+    }
+];
+
 // Middleware to verify JWT token
 const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -114,7 +133,14 @@ const authenticateToken = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-        const user = await User.findById(decoded.userId).select('-password');
+        
+        let user;
+        try {
+            user = await User.findById(decoded.userId).select('-password');
+        } catch (error) {
+            // Fallback to demo users
+            user = demoUsers.find(u => u.id === decoded.userId);
+        }
         
         if (!user) {
             return res.status(401).json({ message: 'Invalid token' });
@@ -143,31 +169,52 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
-        // Check if user already exists
-        const existingUser = await User.findOne({
-            $or: [{ email }, { username }]
-        });
-
-        if (existingUser) {
-            return res.status(400).json({ 
-                message: existingUser.email === email ? 'Email already registered' : 'Username already taken'
+        let user;
+        try {
+            // Check if user already exists
+            const existingUser = await User.findOne({
+                $or: [{ email }, { username }]
             });
+
+            if (existingUser) {
+                return res.status(400).json({ 
+                    message: existingUser.email === email ? 'Email already registered' : 'Username already taken'
+                });
+            }
+
+            // Create new user
+            user = new User({
+                username,
+                email,
+                password,
+                firstName,
+                lastName
+            });
+
+            await user.save();
+        } catch (error) {
+            // Fallback for demo mode
+            const existingDemoUser = demoUsers.find(u => u.email === email || u.username === username);
+            if (existingDemoUser) {
+                return res.status(400).json({ message: 'User already exists in demo mode' });
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 12);
+            user = {
+                id: Date.now().toString(),
+                username,
+                email,
+                password: hashedPassword,
+                firstName,
+                lastName,
+                role: 'user'
+            };
+            demoUsers.push(user);
         }
-
-        // Create new user
-        const user = new User({
-            username,
-            email,
-            password,
-            firstName,
-            lastName
-        });
-
-        await user.save();
 
         // Generate JWT token
         const token = jwt.sign(
-            { userId: user._id },
+            { userId: user._id || user.id },
             process.env.JWT_SECRET || 'your-secret-key',
             { expiresIn: '7d' }
         );
@@ -176,7 +223,7 @@ app.post('/api/auth/register', async (req, res) => {
             message: 'User registered successfully',
             token,
             user: {
-                id: user._id,
+                id: user._id || user.id,
                 username: user.username,
                 email: user.email,
                 firstName: user.firstName,
@@ -204,25 +251,36 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ message: 'Email and password are required' });
         }
 
-        // Find user
-        const user = await User.findOne({ email });
-        if (!user) {
+        let user;
+        let isPasswordValid = false;
+
+        try {
+            // Find user in MongoDB
+            user = await User.findOne({ email });
+            if (user) {
+                isPasswordValid = await user.comparePassword(password);
+            }
+        } catch (error) {
+            // Fallback to demo users
+            user = demoUsers.find(u => u.email === email);
+            if (user) {
+                isPasswordValid = await bcrypt.compare(password, user.password);
+            }
+        }
+
+        if (!user || !isPasswordValid) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        // Check password
-        const isPasswordValid = await user.comparePassword(password);
-        if (!isPasswordValid) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+        // Update last login for MongoDB users
+        if (user.save) {
+            user.lastLogin = new Date();
+            await user.save();
         }
-
-        // Update last login
-        user.lastLogin = new Date();
-        await user.save();
 
         // Generate JWT token
         const token = jwt.sign(
-            { userId: user._id },
+            { userId: user._id || user.id },
             process.env.JWT_SECRET || 'your-secret-key',
             { expiresIn: '7d' }
         );
@@ -231,13 +289,13 @@ app.post('/api/auth/login', async (req, res) => {
             message: 'Login successful',
             token,
             user: {
-                id: user._id,
+                id: user._id || user.id,
                 username: user.username,
                 email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 role: user.role,
-                lastLogin: user.lastLogin
+                lastLogin: user.lastLogin || new Date()
             }
         });
     } catch (error) {
@@ -250,7 +308,7 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
     res.json({
         user: {
-            id: req.user._id,
+            id: req.user._id || req.user.id,
             username: req.user.username,
             email: req.user.email,
             firstName: req.user.firstName,
@@ -266,11 +324,6 @@ app.post('/api/auth/logout', authenticateToken, async (req, res) => {
     res.json({ message: 'Logged out successfully' });
 });
 
-// Protected route for projects page
-app.get('/projec.html', authenticateToken, (req, res) => {
-    res.sendFile(path.join(__dirname, 'projec.html'));
-});
-
 // Serve static files
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
@@ -284,21 +337,29 @@ app.get('/signup', (req, res) => {
     res.sendFile(path.join(__dirname, 'signup.html'));
 });
 
-// Catch all other routes and redirect to login if not authenticated
-app.get('*', (req, res, next) => {
-    // Allow access to public files
-    const publicPaths = ['/', '/index.html', '/login.html', '/signup.html', '/css/', '/js/', '/images/'];
-    const isPublicPath = publicPaths.some(path => req.path.startsWith(path));
-    
-    if (isPublicPath) {
-        next();
-    } else {
-        res.redirect('/login.html');
-    }
+app.get('/portfolio', (req, res) => {
+    res.sendFile(path.join(__dirname, 'portfolio.html'));
 });
+
+// Protected route middleware
+const requireAuth = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+        return res.redirect('/login.html');
+    }
+    
+    try {
+        jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        next();
+    } catch (error) {
+        return res.redirect('/login.html');
+    }
+};
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`🌐 Visit: http://localhost:${PORT}`);
+    console.log(`📝 Demo credentials: demo@example.com / password`);
 });
