@@ -1,466 +1,788 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Yash Portfolio</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	
-	<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css?family=Abril+Fatface&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-
-	<link rel="stylesheet" href="css1/animate.css">
-	
-	<link rel="stylesheet" href="css1/owl.carousel.min.css">
-	<link rel="stylesheet" href="css1/owl.theme.default.min.css">
-	<link rel="stylesheet" href="css1/magnific-popup.css">
-
-	
-	<link rel="stylesheet" href="css1/flaticon.css">
-	<link rel="stylesheet" href="css1/style1.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>YASH AGARWAL - Project Database</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/jarvis.css">
+    <link rel="stylesheet" href="../css/auth.css">
+    <link rel="stylesheet" href="css/projects.css">
 </head>
 <body>
+    <!-- Background Effects -->
+    <div class="matrix-bg"></div>
+    <div class="holo-grid"></div>
+    <div class="scan-lines"></div>
+    <div class="particles"></div>
 
-	<div id="colorlib-page">
-		<a href="#" class="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>
-		<aside id="colorlib-aside" role="complementary" class="js-fullheight">
+    <!-- JARVIS Loading Screen -->
+    <div class="jarvis-loading" id="loadingScreen">
+        <div class="loading-content">
+            <div class="jarvis-logo"></div>
+            <div class="loading-text">Accessing Project Database...</div>
+            <div class="loading-progress">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+    </div>
 
-			<h1 id="colorlib-logo" class="mb-4 mb-md-5"><a href="#" style="background-image: url(images/docker.jpg);">Yash AGARWAL</a></h1>
-			<a></a>
-            <h1 id="colorlib-logo" class="mb-4 mb-md-5"><a href="#" style="background-image: url(images/HTML.jpg);">Project</a></h1>
-			<a></a>
-			<a></a>
-			<h1 id="colorlib-logo" class="mb-0 mb-0">
-				<a href="index.html" style="background-image: url(images/wp.jpg); font-size: 24px; padding: 10px;">H_O_M_E</a>
-			</h1>
-			<div class="row no-gutters align-items-center">
-				<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/1-removebg-preview.png);">
+    <!-- Authentication Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-prompt">
+            <h2>RESTRICTED ACCESS</h2>
+            <p>This project database requires authentication. Please sign in to view all projects and access advanced features.</p>
+            <div class="auth-actions">
+                <button class="jarvis-btn primary" onclick="showAuthModal('login')">
+                    <span>SIGN IN</span>
+                    <i class="fas fa-sign-in-alt"></i>
+                </button>
+                <button class="jarvis-btn" onclick="showAuthModal('signup')">
+                    <span>REGISTER</span>
+                    <i class="fas fa-user-plus"></i>
+                </button>
+                <button class="jarvis-btn" onclick="viewAsGuest()">
+                    <span>GUEST ACCESS</span>
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
-				</div>
-			</div>
+    <!-- Navigation -->
+    <nav class="jarvis-nav" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-brand">
+                Y.A.S.H 🤖
+            </a>
+            
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html" class="nav-link">
+                    <span>HOME</span>
+                </a>
+                <a href="#projects" class="nav-link active">
+                    <span>PROJECTS</span>
+                </a>
+                <a href="#" class="nav-link" id="authLink">
+                    <span>SIGN IN</span>
+                </a>
+            </div>
+            
+            <!-- User Panel (hidden by default) -->
+            <div class="user-panel" id="userPanel" style="display: none;">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">User</span>
+                        <span class="user-role" id="userRole">Member</span>
+                    </div>
+                </div>
+                <button class="jarvis-btn" onclick="signOut()">
+                    <span>LOGOUT</span>
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
 
-				</div>
-				
-				</div>
-			</aside> <!-- END COLORLIB-ASIDE -->
-			<div id="colorlib-main">
-				<section class="ftco-section ftco-no-pt ftco-no-pb">
-					<div class="container px-md-0">
-						<div class="row d-flex no-gutters">
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/HTML.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<h2 class="mb-4"><a href="singles.html">Dragrable window&amp; Window adjust</a></h2>
-													
-													<p><a href="Menu/HTMLTasks/draggable.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero jarvis-section">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="hero-greeting">PROJECT DATABASE</div>
+                    <h1 class="hero-title">MISSION ARCHIVES</h1>
+                    <h2 class="hero-subtitle">
+                        <span class="typing-text">Classified Projects</span>
+                    </h2>
+                    <p class="hero-description">
+                        Explore my comprehensive collection of AI, web development, 
+                        DevOps, and cloud computing projects. Each project represents 
+                        a unique solution to complex technological challenges.
+                    </p>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" data-count="30">0</span>
+                            <span class="stat-label">TOTAL PROJECTS</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-count="8">0</span>
+                            <span class="stat-label">CATEGORIES</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-count="15">0</span>
+                            <span class="stat-label">TECHNOLOGIES</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-visual">
+                    <div class="jarvis-avatar">
+                        <div class="avatar-container">
+                            <div class="avatar-placeholder">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="avatar-overlay"></div>
+                        </div>
+                        <div class="holo-rings">
+                            <div class="holo-ring"></div>
+                            <div class="holo-ring"></div>
+                            <div class="holo-ring"></div>
+                        </div>
+                        <div class="floating-data">PROJECTS: 30</div>
+                        <div class="floating-data">STATUS: ACTIVE</div>
+                        <div class="floating-data">ACCESS: GRANTED</div>
+                        <div class="floating-data">AI: ONLINE</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/html5.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<h2 class="mb-4"><a href="singles.html"> HTML_LIVE_INTERPRETER</a></h2>
-													
-													<p><a href="Menu/html_live_interpreter.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+        <!-- Projects Section -->
+        <section id="projects" class="projects jarvis-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-tag">MISSION ARCHIVES</span>
+                    <h2 class="section-title">PROJECT COLLECTION</h2>
+                    <p class="section-subtitle">
+                        Advanced technological solutions and innovative implementations
+                    </p>
+                </div>
+                
+                <!-- Search and Filter -->
+                <div class="search-filter-container">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search projects..." class="search-input">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    
+                    <div class="projects-filter">
+                        <button class="filter-btn active" data-filter="all">ALL PROJECTS</button>
+                        <button class="filter-btn" data-filter="web">WEB DEVELOPMENT</button>
+                        <button class="filter-btn" data-filter="ai">AI & ML</button>
+                        <button class="filter-btn" data-filter="devops">DEVOPS</button>
+                        <button class="filter-btn" data-filter="aws">CLOUD SYSTEMS</button>
+                        <button class="filter-btn" data-filter="automation">AUTOMATION</button>
+                    </div>
+                </div>
+                
+                <!-- Projects Grid -->
+                <div class="projects-grid" id="projectsGrid">
+                    <!-- Web Development Projects -->
+                    <div class="project-card" data-category="web" data-tags="html javascript ui interactive">
+                        <div class="project-image">
+                            <div class="project-placeholder web-project">
+                                <i class="fas fa-window-maximize"></i>
+                                <span>INTERACTIVE UI</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/HTMLTasks/draggable.html" class="project-link" title="View Project">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link" title="View Code">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Interactive Window System</h3>
+                            <p class="project-description">
+                                Advanced window management interface with drag, resize, minimize, and maximize functionality. 
+                                Features smooth animations and responsive design.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">HTML5</span>
+                                <span class="tag">CSS3</span>
+                                <span class="tag">JAVASCRIPT</span>
+                                <span class="tag">UI/UX</span>
+                            </div>
+                        </div>
+                    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/html4.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<h2 class="mb-4"><a href="singles.html"> Upload Img</a></h2>
-													
-													<p><a href="Menu/HTMLTasks/upload_image.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <div class="project-card" data-category="web" data-tags="html live editor interpreter">
+                        <div class="project-image">
+                            <div class="project-placeholder web-project">
+                                <i class="fas fa-code"></i>
+                                <span>LIVE EDITOR</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/html_live_interpreter.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Live HTML Interpreter</h3>
+                            <p class="project-description">
+                                Real-time HTML/CSS/JS interpreter with live preview. Edit code and see instant results 
+                                with syntax highlighting and error detection.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">REAL-TIME</span>
+                                <span class="tag">COMPILER</span>
+                                <span class="tag">EDITOR</span>
+                                <span class="tag">PREVIEW</span>
+                            </div>
+                        </div>
+                    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/pq2.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="singles.html">Transcription</a></h2>
-													
-													<p><a href="Menu/HTMLTasks/text_to_speak.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <div class="project-card" data-category="web" data-tags="image upload resize processing">
+                        <div class="project-image">
+                            <div class="project-placeholder web-project">
+                                <i class="fas fa-image"></i>
+                                <span>IMAGE PROCESSOR</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/HTMLTasks/upload_image.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Image Upload & Resize</h3>
+                            <p class="project-description">
+                                Advanced image processing tool with upload, resize, and download capabilities. 
+                                Supports multiple formats with real-time preview.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">IMAGE PROCESSING</span>
+                                <span class="tag">CANVAS API</span>
+                                <span class="tag">FILE UPLOAD</span>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="project-card" data-category="web" data-tags="speech synthesis text audio">
+                        <div class="project-image">
+                            <div class="project-placeholder web-project">
+                                <i class="fas fa-microphone"></i>
+                                <span>SPEECH ENGINE</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/HTMLTasks/text_to_speak.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Text-to-Speech Converter</h3>
+                            <p class="project-description">
+                                Advanced speech synthesis system with natural voice generation. 
+                                Convert any text to high-quality audio with customizable settings.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">SPEECH API</span>
+                                <span class="tag">AUDIO</span>
+                                <span class="tag">SYNTHESIS</span>
+                            </div>
+                        </div>
+                    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/p6.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<h2 class="mb-4"><a href="singles.html"> Bulk Email Sender</a></h2>
-													
-													<p><a href="Menu/send_bulk_email.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/p5.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<h2 class="mb-4"><a href="singles.html">Google Search</a></h2>
-													
-													<p><a href="Menu/google_search.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <!-- AI & ML Projects -->
+                    <div class="project-card" data-category="ai" data-tags="gemini ai text generation nlp">
+                        <div class="project-image">
+                            <div class="project-placeholder ai-project">
+                                <i class="fas fa-brain"></i>
+                                <span>AI TEXT ENGINE</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/gemini.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Gemini AI Text Generator</h3>
+                            <p class="project-description">
+                                Advanced AI-powered text generation system using Google's Gemini API. 
+                                Generate creative content, code, and solutions with natural language processing.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">GEMINI AI</span>
+                                <span class="tag">NLP</span>
+                                <span class="tag">TEXT GENERATION</span>
+                                <span class="tag">API INTEGRATION</span>
+                            </div>
+                        </div>
+                    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/p4.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<h2 class="mb-4"><a href="singles.html">Find latitude and longitude</a></h2>
-													<p><a href="Menu/geo_coordinates.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/p3.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="singles.html">Adjust laptop volume</a></h2>
-													<p><a href="Menu/adj_vol.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <!-- DevOps Projects -->
+                    <div class="project-card" data-category="devops" data-tags="docker containers orchestration">
+                        <div class="project-image">
+                            <div class="project-placeholder devops-project">
+                                <i class="fab fa-docker"></i>
+                                <span>CONTAINER CONTROL</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/docker.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Docker Management System</h3>
+                            <p class="project-description">
+                                Comprehensive Docker container management with real-time monitoring, 
+                                automated deployment, and resource optimization.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">DOCKER</span>
+                                <span class="tag">CONTAINERS</span>
+                                <span class="tag">ORCHESTRATION</span>
+                                <span class="tag">MONITORING</span>
+                            </div>
+                        </div>
+                    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/p1.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">JS_Camera</a></h2>
-													<p><a href="Menu/js_camera.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <div class="project-card" data-category="devops" data-tags="linux terminal ssh automation">
+                        <div class="project-image">
+                            <div class="project-placeholder devops-project">
+                                <i class="fab fa-linux"></i>
+                                <span>LINUX CONTROL</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/linux.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Linux Terminal Controller</h3>
+                            <p class="project-description">
+                                Web-based Linux terminal interface with command execution, 
+                                file management, and system monitoring capabilities.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">LINUX</span>
+                                <span class="tag">TERMINAL</span>
+                                <span class="tag">AUTOMATION</span>
+                            </div>
+                        </div>
+                    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/html2.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">Live Camera</a></h2>
-													<p><a href="Menu/cam_live.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <!-- AWS Projects -->
+                    <div class="project-card" data-category="aws" data-tags="aws boto3 ec2 cloud">
+                        <div class="project-image">
+                            <div class="project-placeholder aws-project">
+                                <i class="fab fa-aws"></i>
+                                <span>CLOUD CONTROL</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/AWSfiles/boto3.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">AWS Instance Manager</h3>
+                            <p class="project-description">
+                                Comprehensive AWS EC2 instance management with automated scaling, 
+                                monitoring, and cost optimization using Boto3.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">AWS</span>
+                                <span class="tag">BOTO3</span>
+                                <span class="tag">EC2</span>
+                                <span class="tag">AUTOMATION</span>
+                            </div>
+                        </div>
+                    </div>
 
-							
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/h6.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">SEND SMS</a></h2>
-													<p><a href="Menu/python_sms.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <div class="project-card" data-category="aws" data-tags="dynamodb nosql database">
+                        <div class="project-image">
+                            <div class="project-placeholder aws-project">
+                                <i class="fas fa-database"></i>
+                                <span>DYNAMO CONTROL</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/AWSfiles/dynamocgi.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">DynamoDB Management</h3>
+                            <p class="project-description">
+                                Advanced NoSQL database management system for DynamoDB with 
+                                table operations, data visualization, and performance monitoring.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">DYNAMODB</span>
+                                <span class="tag">NOSQL</span>
+                                <span class="tag">DATABASE</span>
+                            </div>
+                        </div>
+                    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/wp.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">SEND WHATSAPP MESSAGE</a></h2>
-													<p><a href="Menu/whatsapp.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <!-- Automation Projects -->
+                    <div class="project-card" data-category="automation" data-tags="email bulk automation">
+                        <div class="project-image">
+                            <div class="project-placeholder automation-project">
+                                <i class="fas fa-envelope-bulk"></i>
+                                <span>EMAIL AUTOMATION</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/send_bulk_email.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Bulk Email System</h3>
+                            <p class="project-description">
+                                Automated bulk email sending system with template management, 
+                                recipient lists, and delivery tracking.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">EMAIL</span>
+                                <span class="tag">AUTOMATION</span>
+                                <span class="tag">BULK PROCESSING</span>
+                            </div>
+                        </div>
+                    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/h6.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">Command_Sugesstion</a></h2>\
-													<p><a href="Menu/cmdsuggest.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/linux.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">Linux-Controller</a></h2>\
-													<p><a href="Menu/linux.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <div class="project-card" data-category="automation" data-tags="whatsapp messaging api">
+                        <div class="project-image">
+                            <div class="project-placeholder automation-project">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>WHATSAPP API</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/whatsapp.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">WhatsApp Messenger</h3>
+                            <p class="project-description">
+                                Automated WhatsApp messaging system with API integration, 
+                                message scheduling, and contact management.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">WHATSAPP API</span>
+                                <span class="tag">MESSAGING</span>
+                                <span class="tag">AUTOMATION</span>
+                            </div>
+                        </div>
+                    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/linuxman.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">SSH_Linux-Controller</a></h2>\
-													<p><a href="Menu/ssh_linux.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                    <!-- Additional Projects -->
+                    <div class="project-card" data-category="web" data-tags="camera javascript webrtc">
+                        <div class="project-image">
+                            <div class="project-placeholder web-project">
+                                <i class="fas fa-camera"></i>
+                                <span>CAMERA SYSTEM</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/cam_live.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Live Camera Interface</h3>
+                            <p class="project-description">
+                                Real-time camera access and streaming with WebRTC technology. 
+                                Features video capture, filters, and recording capabilities.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">WEBRTC</span>
+                                <span class="tag">CAMERA API</span>
+                                <span class="tag">STREAMING</span>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="project-card" data-category="automation" data-tags="google search api automation">
+                        <div class="project-image">
+                            <div class="project-placeholder automation-project">
+                                <i class="fab fa-google"></i>
+                                <span>SEARCH ENGINE</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/google_search.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Google Search Integration</h3>
+                            <p class="project-description">
+                                Custom Google Search implementation with API integration, 
+                                result filtering, and advanced search capabilities.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">GOOGLE API</span>
+                                <span class="tag">SEARCH</span>
+                                <span class="tag">INTEGRATION</span>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="project-card" data-category="automation" data-tags="geolocation coordinates mapping">
+                        <div class="project-image">
+                            <div class="project-placeholder automation-project">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>GEO LOCATOR</span>
+                            </div>
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="Menu/geo_coordinates.html" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Geo Coordinates Finder</h3>
+                            <p class="project-description">
+                                Advanced geolocation system with coordinate detection, 
+                                address lookup, and mapping integration.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">GEOLOCATION</span>
+                                <span class="tag">MAPPING</span>
+                                <span class="tag">COORDINATES</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/docker.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">Docker</a></h2>
-													<p><a href="Menu/docker.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                <!-- Load More Button -->
+                <div class="load-more-container" style="text-align: center; margin-top: 3rem;">
+                    <button class="jarvis-btn primary" id="loadMoreBtn">
+                        <span>LOAD MORE PROJECTS</span>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
 
-							
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/aws5.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">Machine Learning</a></h2>
-													<p><a href="Menu/gemini.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+    <!-- Authentication Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
+                <h3 id="authModalTitle">AUTHENTICATION REQUIRED</h3>
+                <button class="auth-modal-close" onclick="closeAuthModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="auth-modal-body">
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="jarvis-btn primary">
+                        <span>AUTHENTICATE</span>
+                        <i class="fas fa-sign-in-alt"></i>
+                    </button>
+                </form>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/aws1.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">Boto_3</a></h2>
-													<p><a href="Menu/AWSfiles/boto3.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+                <!-- Signup Form -->
+                <form id="signupForm" class="auth-form" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" id="signupFirstName" class="form-input" placeholder="First name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" id="signupLastName" class="form-input" placeholder="Last name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="signupEmail" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="signupPassword" class="form-input" placeholder="Create password" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" id="signupConfirmPassword" class="form-input" placeholder="Confirm password" required>
+                    </div>
+                    <button type="submit" class="jarvis-btn primary">
+                        <span>CREATE ACCOUNT</span>
+                        <i class="fas fa-user-plus"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/aws2.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">Create_I'M</a></h2>
-													<p><a href="Menu/AWSfiles/create_iam.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+    <!-- Gemini AI Chat Bot -->
+    <div class="ai-chat-container" id="aiChatContainer">
+        <div class="ai-chat-header">
+            <div class="ai-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="ai-info">
+                <h4>Gemini Assistant</h4>
+                <span class="ai-status">Online</span>
+            </div>
+            <button class="ai-toggle" onclick="toggleAIChat()">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+        
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="ai-message">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <p>Hello! I'm your AI assistant. I can help you navigate projects, answer questions, or provide technical insights. How can I assist you today?</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ai-chat-input">
+            <input type="text" id="aiChatInput" placeholder="Ask me anything about the projects..." class="ai-input">
+            <button onclick="sendAIMessage()" class="ai-send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/aws3.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">Dynamo</a></h2>
-													<p><a href="Menu/AWSfiles/dynamocgi.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+    <!-- AI Chat Toggle Button -->
+    <button class="ai-chat-toggle" onclick="toggleAIChat()">
+        <i class="fas fa-robot"></i>
+        <span class="chat-notification" id="chatNotification">1</span>
+    </button>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/aws4.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">EC2 Matrix</a></h2>
-													<p><a href="Menu/AWSfiles/ec2metrics.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+    <!-- JARVIS Voice Assistant -->
+    <div class="voice-assistant" id="voiceAssistant">
+        <button class="voice-btn" onclick="toggleVoiceAssistant()">
+            <i class="fas fa-microphone" id="voiceIcon"></i>
+        </button>
+        <div class="voice-status" id="voiceStatus">
+            <span>JARVIS Ready</span>
+        </div>
+    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/aws5.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">GET LOGS</a></h2>
-													<p><a href="Menu/AWSfiles/get_logs.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+    <!-- User Info Panel -->
+    <div class="user-info-panel" id="userInfoPanel">
+        <div class="user-info-header">
+            <div class="user-avatar" id="userAvatarPanel">U</div>
+            <div class="user-details">
+                <div class="user-name" id="userNamePanel">Guest User</div>
+                <div class="user-role" id="userRolePanel">Visitor</div>
+            </div>
+        </div>
+        <div class="user-stats">
+            <div class="user-stat">
+                <span class="stat-label">Projects Viewed</span>
+                <span class="stat-value" id="projectsViewed">0</span>
+            </div>
+            <div class="user-stat">
+                <span class="stat-label">Session Time</span>
+                <span class="stat-value" id="sessionTime">00:00</span>
+            </div>
+            <div class="user-stat">
+                <span class="stat-label">Access Level</span>
+                <span class="stat-value" id="accessLevel">Guest</span>
+            </div>
+        </div>
+    </div>
 
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/aws6.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">S3 Bucket</a></h2>
-													<p><a href="Menu/AWSfiles/s3_bucket.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="col-md-4 portfolio-wrap-2">
-								<div class="row no-gutters align-items-center">
-									<div href="#" class="img w-100 js-fullheight d-flex align-items-center" style="background-image: url(images/aws7.jpg);">
-										<div class="text p-4 p-md-5 ftco-animate">
-											<div class="desc">
-												<div class="top">
-													<span class="subheading">Portrait</span>
-													<h2 class="mb-4"><a href="single.html">SNS</a></h2>
-													<p><a href="Menu/AWSfiles/sns.html" class="custom-btn">View </a></p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="row d-flex">
-							<div class="col-md-12">
-								<a href="#" class="btn-custom-load d-block w-100 text-center py-4">Load more <span class="fa fa-refresh"></span></a>
-							</div>
-						</div>
-					</div>
-				</section>
-			</div><!-- END COLORLIB-MAIN -->
-		</div><!-- END COLORLIB-PAGE -->
+    <!-- Session Timer -->
+    <div class="session-timer" id="sessionTimer">
+        <i class="fas fa-clock timer-icon"></i>
+        <span id="sessionTimeDisplay">Session: 00:00</span>
+    </div>
 
-		<!-- loader -->
-		<div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
-
-
-		<script src="js1/jquery.min.js"></script>
-		<script src="js1/jquery-migrate-3.0.1.min.js"></script>
-		<script src="js1/popper.min.js"></script>
-		<script src="js1/bootstrap.min.js"></script>
-		<script src="js1/jquery.easing.1.3.js"></script>
-		<script src="js1/jquery.waypoints.min.js"></script>
-		<script src="js1/jquery.stellar.min.js"></script>
-		<script src="js1/owl.carousel.min.js"></script>
-		<script src="js1/jquery.magnific-popup.min.js"></script>
-		<script src="js1/jquery.animateNumber.min.js"></script>
-		<script src="js1/scrollax.min.js"></script>
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
-		<script src="js1/google-map.js"></script>
-		<script src="js1/main.js"></script>
-		
-	</body>
-	</html>
+    <!-- Scripts -->
+    <script src="../js/jarvis.js"></script>
+    <script src="js/projects-enhanced.js"></script>
+</body>
+</html>
