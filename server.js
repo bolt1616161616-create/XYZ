@@ -3,27 +3,61 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Security middleware
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "https://generativelanguage.googleapis.com"]
+        }
+    }
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+    message: { error: 'Too many requests, please try again later.' }
+});
+
+app.use('/api/', limiter);
+
+// CORS configuration
+const corsOptions = {
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static('.'));
+
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'demo-key');
 
 // MongoDB Connection
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio', {
+        const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/yash_portfolio', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
         console.error('❌ MongoDB connection error:', error);
-        // For demo purposes, continue without MongoDB
         console.log('📝 Running in demo mode without MongoDB');
     }
 };
@@ -65,7 +99,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'premium'],
         default: 'user'
     },
     isVerified: {
@@ -75,6 +109,11 @@ const userSchema = new mongoose.Schema({
     lastLogin: {
         type: Date,
         default: Date.now
+    },
+    preferences: {
+        theme: { type: String, default: 'dark' },
+        notifications: { type: Boolean, default: true },
+        voiceAssistant: { type: Boolean, default: true }
     }
 }, {
     timestamps: true
@@ -93,36 +132,26 @@ userSchema.pre('save', async function(next) {
     }
 });
 
-// Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.model('User', userSchema);
 
-// Demo users for when MongoDB is not available
+// Demo users for fallback
 const demoUsers = [
     {
         id: '1',
         username: 'demo',
         email: 'demo@example.com',
-        password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uDjO', // 'password'
+        password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uDjO',
         firstName: 'Demo',
         lastName: 'User',
         role: 'user'
-    },
-    {
-        id: '2',
-        username: 'admin',
-        email: 'admin@example.com',
-        password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uDjO', // 'password'
-        firstName: 'Admin',
-        lastName: 'User',
-        role: 'admin'
     }
 ];
 
-// Middleware to verify JWT token
+// Auth middleware
 const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -138,7 +167,6 @@ const authenticateToken = async (req, res, next) => {
         try {
             user = await User.findById(decoded.userId).select('-password');
         } catch (error) {
-            // Fallback to demo users
             user = demoUsers.find(u => u.id === decoded.userId);
         }
         
@@ -153,14 +181,11 @@ const authenticateToken = async (req, res, next) => {
     }
 };
 
-// Routes
-
-// Register
+// Auth Routes
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { username, email, password, firstName, lastName } = req.body;
 
-        // Validation
         if (!username || !email || !password || !firstName || !lastName) {
             return res.status(400).json({ message: 'All fields are required' });
         }
@@ -171,7 +196,6 @@ app.post('/api/auth/register', async (req, res) => {
 
         let user;
         try {
-            // Check if user already exists
             const existingUser = await User.findOne({
                 $or: [{ email }, { username }]
             });
@@ -182,7 +206,6 @@ app.post('/api/auth/register', async (req, res) => {
                 });
             }
 
-            // Create new user
             user = new User({
                 username,
                 email,
@@ -193,10 +216,9 @@ app.post('/api/auth/register', async (req, res) => {
 
             await user.save();
         } catch (error) {
-            // Fallback for demo mode
             const existingDemoUser = demoUsers.find(u => u.email === email || u.username === username);
             if (existingDemoUser) {
-                return res.status(400).json({ message: 'User already exists in demo mode' });
+                return res.status(400).json({ message: 'User already exists' });
             }
 
             const hashedPassword = await bcrypt.hash(password, 12);
@@ -212,7 +234,6 @@ app.post('/api/auth/register', async (req, res) => {
             demoUsers.push(user);
         }
 
-        // Generate JWT token
         const token = jwt.sign(
             { userId: user._id || user.id },
             process.env.JWT_SECRET || 'your-secret-key',
@@ -233,20 +254,14 @@ app.post('/api/auth/register', async (req, res) => {
         });
     } catch (error) {
         console.error('Registration error:', error);
-        if (error.code === 11000) {
-            const field = Object.keys(error.keyPattern)[0];
-            return res.status(400).json({ message: `${field} already exists` });
-        }
         res.status(500).json({ message: 'Server error during registration' });
     }
 });
 
-// Login
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validation
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
         }
@@ -255,13 +270,15 @@ app.post('/api/auth/login', async (req, res) => {
         let isPasswordValid = false;
 
         try {
-            // Find user in MongoDB
             user = await User.findOne({ email });
             if (user) {
                 isPasswordValid = await user.comparePassword(password);
+                if (isPasswordValid) {
+                    user.lastLogin = new Date();
+                    await user.save();
+                }
             }
         } catch (error) {
-            // Fallback to demo users
             user = demoUsers.find(u => u.email === email);
             if (user) {
                 isPasswordValid = await bcrypt.compare(password, user.password);
@@ -272,13 +289,6 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        // Update last login for MongoDB users
-        if (user.save) {
-            user.lastLogin = new Date();
-            await user.save();
-        }
-
-        // Generate JWT token
         const token = jwt.sign(
             { userId: user._id || user.id },
             process.env.JWT_SECRET || 'your-secret-key',
@@ -295,7 +305,7 @@ app.post('/api/auth/login', async (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 role: user.role,
-                lastLogin: user.lastLogin || new Date()
+                preferences: user.preferences || { theme: 'dark', notifications: true, voiceAssistant: true }
             }
         });
     } catch (error) {
@@ -304,7 +314,6 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// Get current user
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
     res.json({
         user: {
@@ -314,17 +323,110 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
             firstName: req.user.firstName,
             lastName: req.user.lastName,
             role: req.user.role,
-            lastLogin: req.user.lastLogin
+            preferences: req.user.preferences || { theme: 'dark', notifications: true, voiceAssistant: true }
         }
     });
 });
 
-// Logout
-app.post('/api/auth/logout', authenticateToken, async (req, res) => {
-    res.json({ message: 'Logged out successfully' });
+// Gemini AI Chat Route
+app.post('/api/chat/gemini', authenticateToken, async (req, res) => {
+    try {
+        const { message, context } = req.body;
+
+        if (!message) {
+            return res.status(400).json({ error: 'Message is required' });
+        }
+
+        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'demo-key') {
+            return res.json({
+                response: `Hello! I'm the Gemini AI assistant. You asked: "${message}". This is a demo response since no API key is configured. I can help you with questions about Yash's projects, skills, and experience in AI, web development, and DevOps.`
+            });
+        }
+
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+        const prompt = `You are an AI assistant for Yash Agarwal's portfolio. Yash is an AI Engineer and Data Scientist specializing in machine learning, web development, and DevOps. 
+
+Context about Yash:
+- BTech student in AI & Data Science at Arya College of Engineering
+- Experienced in Python, JavaScript, AWS, Docker, Machine Learning
+- Has worked on projects like ManasMitra (AI mental health platform), Docker management systems, AWS automation tools
+- Skilled in Flask, React, MongoDB, MySQL, and cloud technologies
+- Currently interning at LinuxWorld Informatics Pvt Ltd
+
+User question: ${message}
+
+Please provide a helpful, informative response about Yash's work, skills, or projects. Keep responses concise but informative.`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        res.json({ response: text });
+    } catch (error) {
+        console.error('Gemini API error:', error);
+        res.status(500).json({ 
+            error: 'Failed to get AI response',
+            response: "I'm having trouble connecting to my AI systems right now. Please try again later or contact Yash directly for any questions about his portfolio."
+        });
+    }
 });
 
-// Serve static files
+// Voice Assistant Route
+app.post('/api/voice/process', authenticateToken, async (req, res) => {
+    try {
+        const { transcript } = req.body;
+
+        if (!transcript) {
+            return res.status(400).json({ error: 'Transcript is required' });
+        }
+
+        // Process voice commands
+        const response = await processVoiceCommand(transcript);
+        res.json({ response, action: response.action || null });
+    } catch (error) {
+        console.error('Voice processing error:', error);
+        res.status(500).json({ error: 'Failed to process voice command' });
+    }
+});
+
+async function processVoiceCommand(transcript) {
+    const command = transcript.toLowerCase();
+    
+    if (command.includes('navigate') || command.includes('go to')) {
+        if (command.includes('projects')) {
+            return { response: "Navigating to projects section", action: 'navigate', target: 'projects' };
+        } else if (command.includes('about')) {
+            return { response: "Navigating to about section", action: 'navigate', target: 'about' };
+        } else if (command.includes('contact')) {
+            return { response: "Navigating to contact section", action: 'navigate', target: 'contact' };
+        } else if (command.includes('skills')) {
+            return { response: "Navigating to skills section", action: 'navigate', target: 'skills' };
+        }
+    }
+    
+    if (command.includes('tell me about') || command.includes('what is')) {
+        if (command.includes('yash') || command.includes('yourself')) {
+            return { 
+                response: "Yash Agarwal is an AI Engineer and Data Scientist specializing in machine learning, web development, and DevOps. He's currently pursuing BTech in AI & Data Science and has experience with Python, JavaScript, AWS, and Docker."
+            };
+        }
+    }
+    
+    if (command.includes('show') || command.includes('display')) {
+        if (command.includes('projects')) {
+            return { response: "Displaying all projects", action: 'filter', target: 'all' };
+        } else if (command.includes('ai') || command.includes('machine learning')) {
+            return { response: "Showing AI and Machine Learning projects", action: 'filter', target: 'ai' };
+        } else if (command.includes('web')) {
+            return { response: "Showing web development projects", action: 'filter', target: 'web' };
+        }
+    }
+    
+    return { response: "I'm JARVIS, Yash's AI assistant. I can help you navigate the portfolio, filter projects, or answer questions about Yash's work. Try saying 'show projects' or 'tell me about Yash'." };
+}
+
+// Static routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -341,25 +443,21 @@ app.get('/portfolio', (req, res) => {
     res.sendFile(path.join(__dirname, 'portfolio.html'));
 });
 
-// Protected route middleware
-const requireAuth = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token) {
-        return res.redirect('/login.html');
-    }
-    
-    try {
-        jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-        next();
-    } catch (error) {
-        return res.redirect('/login.html');
-    }
-};
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Something went wrong!' });
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 Enhanced Portfolio Server running on port ${PORT}`);
     console.log(`🌐 Visit: http://localhost:${PORT}`);
+    console.log(`🤖 Gemini AI: ${process.env.GEMINI_API_KEY ? 'Enabled' : 'Demo Mode'}`);
     console.log(`📝 Demo credentials: demo@example.com / password`);
 });
