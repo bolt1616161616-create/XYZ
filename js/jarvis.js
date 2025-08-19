@@ -1,6 +1,5 @@
 // JARVIS Portfolio - Advanced AI Interface
 
-
 class JARVISPortfolio {
     constructor() {
         this.isInitialized = false;
@@ -30,11 +29,11 @@ class JARVISPortfolio {
         this.initNavigation();
         this.initTypingEffect();
         this.initScrollEffects();
-        this.initVoiceRecognition();
-        this.initAIAssistant();
         this.initHUDElements();
         this.initInteractiveElements();
         this.initNotificationSystem();
+        this.initFormHandler();
+        this.initProjectFiltering();
         
         // Start loading sequence
         setTimeout(() => {
@@ -46,6 +45,8 @@ class JARVISPortfolio {
 
     initLoadingSequence() {
         const loadingScreen = document.querySelector('.jarvis-loading');
+        if (!loadingScreen) return;
+        
         const progressBar = document.querySelector('.progress-bar');
         
         // Simulate system initialization
@@ -62,7 +63,7 @@ class JARVISPortfolio {
         
         const stepInterval = setInterval(() => {
             if (currentStep < loadingSteps.length) {
-                loadingText.textContent = loadingSteps[currentStep];
+                if (loadingText) loadingText.textContent = loadingSteps[currentStep];
                 this.showNotification('YASH', loadingSteps[currentStep]);
                 currentStep++;
             } else {
@@ -73,7 +74,7 @@ class JARVISPortfolio {
 
     completeLoading() {
         const loadingScreen = document.querySelector('.jarvis-loading');
-        loadingScreen.classList.add('hidden');
+        if (loadingScreen) loadingScreen.classList.add('hidden');
         
         // Initialize entrance animations
         this.triggerEntranceAnimations();
@@ -81,16 +82,18 @@ class JARVISPortfolio {
         // Show welcome message
         setTimeout(() => {
             this.showNotification('YASH', 'Welcome back, Sir. All systems operational.');
-            this.initAIGreeting();
         }, 1000);
         
         this.isInitialized = true;
     }
 
     initMatrixBackground() {
+        const matrixBg = document.querySelector('.matrix-bg');
+        if (!matrixBg) return;
+        
         const canvas = document.createElement('canvas');
         canvas.className = 'matrix-canvas';
-        document.querySelector('.matrix-bg').appendChild(canvas);
+        matrixBg.appendChild(canvas);
         
         const ctx = canvas.getContext('2d');
         
@@ -140,7 +143,7 @@ class JARVISPortfolio {
             particlesContainer.appendChild(particle);
             
             setTimeout(() => {
-                particle.remove();
+                if (particle.parentNode) particle.remove();
             }, 15000);
         };
         
@@ -336,371 +339,11 @@ class JARVISPortfolio {
         }, Math.random() * 300);
     }
 
-    initVoiceRecognition() {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            console.log('Speech recognition not supported');
-            return;
-        }
-        
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        this.recognition = new SpeechRecognition();
-        
-        this.recognition.continuous = false;
-        this.recognition.interimResults = false;
-        this.recognition.lang = 'en-US';
-        
-        const voiceIndicator = document.querySelector('.voice-indicator');
-        
-        if (voiceIndicator) {
-            voiceIndicator.addEventListener('click', () => {
-                this.toggleVoiceRecognition();
-            });
-        }
-        
-        this.recognition.onstart = () => {
-            this.voiceEnabled = true;
-            voiceIndicator?.classList.add('active');
-            this.showNotification('Yash', 'Listening...');
-        };
-        
-        this.recognition.onend = () => {
-            this.voiceEnabled = false;
-            voiceIndicator?.classList.remove('active');
-        };
-        
-        this.recognition.onresult = (event) => {
-            const command = event.results[0][0].transcript.toLowerCase();
-            this.processVoiceCommand(command);
-        };
-    }
-
-    toggleVoiceRecognition() {
-        if (this.voiceEnabled) {
-            this.recognition.stop();
-        } else {
-            this.recognition.start();
-        }
-    }
-
-    processVoiceCommand(command) {
-        console.log('Voice command:', command);
-        
-        if (command.includes('home')) {
-            this.navigateToSection('home');
-        } else if (command.includes('about')) {
-            this.navigateToSection('about');
-        } else if (command.includes('skills')) {
-            this.navigateToSection('skills');
-        } else if (command.includes('projects')) {
-            this.navigateToSection('projects');
-        } else if (command.includes('contact')) {
-            this.navigateToSection('contact');
-        } else if (command.includes('hello') || command.includes('hi')) {
-            this.showNotification('Yash', 'Hello! How can I assist you today?');
-        } else {
-            this.showNotification('Yash', 'Command not recognized. Try saying "home", "about", "skills", "projects", or "contact".');
-        }
-    }
-
-    navigateToSection(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (section) {
-            section.scrollIntoView({ behavior: 'smooth' });
-            this.showNotification('Yash', `Navigating to ${sectionId} section.`);
-        }
-    }
-
-    initAIAssistant() {
-        const aiAssistant = document.querySelector('.ai-assistant');
-        if (!aiAssistant) return;
-        
-        // Show assistant periodically with helpful tips
-        const tips = [
-            'Use voice commands to navigate the portfolio.',
-            'Hover over elements to see interactive effects.',
-            'All systems are running optimally.',
-            'Ready to assist with any inquiries.',
-            'Portfolio data updated in real-time.'
-        ];
-        
-        let tipIndex = 0;
-        
-        setInterval(() => {
-            if (!aiAssistant.classList.contains('active')) {
-                const message = aiAssistant.querySelector('.ai-message');
-                message.textContent = tips[tipIndex];
-                tipIndex = (tipIndex + 1) % tips.length;
-                
-                aiAssistant.classList.add('active');
-                
-                setTimeout(() => {
-                    aiAssistant.classList.remove('active');
-                }, 4000);
-            }
-        }, 15000);
-    }
-
-    initHUDElements() {
-        // Create HUD elements
-        const hudElements = [
-            { position: 'hud-top-left', content: 'SYS: ONLINE' },
-            { position: 'hud-top-right', content: 'PWR: 100%' },
-            { position: 'hud-bottom-left', content: 'NET: CONNECTED' },
-            { position: 'hud-bottom-right', content: 'AI: ACTIVE' }
-        ];
-        
-        hudElements.forEach(hud => {
-            const element = document.createElement('div');
-            element.className = `hud-element ${hud.position}`;
-            element.innerHTML = `
-                <div class="status-indicator">
-                    <span class="status-dot"></span>
-                    ${hud.content}
-                </div>
-            `;
-            document.body.appendChild(element);
-        });
-        
-        // Update HUD periodically
-        setInterval(() => {
-            this.updateHUDInfo();
-        }, 5000);
-    }
-
-    updateHUDInfo() {
-        const hudElements = document.querySelectorAll('.hud-element');
-        const currentTime = new Date().toLocaleTimeString();
-        
-        hudElements.forEach((element, index) => {
-            const statusIndicator = element.querySelector('.status-indicator');
-            
-            switch (index) {
-                case 0:
-                    statusIndicator.innerHTML = `<span class="status-dot"></span>TIME: ${currentTime}`;
-                    break;
-                case 1:
-                    statusIndicator.innerHTML = `<span class="status-dot"></span>SEC: ${this.currentSection.toUpperCase()}`;
-                    break;
-                case 2:
-                    statusIndicator.innerHTML = `<span class="status-dot"></span>USR: ACTIVE`;
-                    break;
-                case 3:
-                    statusIndicator.innerHTML = `<span class="status-dot"></span>MODE: PORTFOLIO`;
-                    break;
-            }
-        });
-    }
-
-    initInteractiveElements() {
-        // Add interactive effects to all clickable elements
-        const interactiveElements = document.querySelectorAll('.jarvis-btn, .project-card, .skill-panel, .contact-card');
-        
-        interactiveElements.forEach(element => {
-            element.addEventListener('mouseenter', () => {
-                this.playHoverSound();
-                element.style.filter = 'brightness(1.2)';
-            });
-            
-            element.addEventListener('mouseleave', () => {
-                element.style.filter = 'brightness(1)';
-            });
-            
-            element.addEventListener('click', () => {
-                this.playClickSound();
-                this.createRippleEffect(element, event);
-            });
-        });
-        
-        // Add scan effect to panels
-        const panels = document.querySelectorAll('.about-panel, .skill-panel, .contact-card');
-        panels.forEach(panel => {
-            panel.addEventListener('mouseenter', () => {
-                this.addScanEffect(panel);
-            });
-        });
-    }
-
-    createRippleEffect(element, event) {
-        const ripple = document.createElement('div');
-        ripple.style.position = 'absolute';
-        ripple.style.borderRadius = '50%';
-        ripple.style.background = 'rgba(0, 212, 255, 0.6)';
-        ripple.style.transform = 'scale(0)';
-        ripple.style.animation = 'ripple 0.6s linear';
-        ripple.style.pointerEvents = 'none';
-        
-        const rect = element.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        const x = event.clientX - rect.left - size / 2;
-        const y = event.clientY - rect.top - size / 2;
-        
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        
-        element.style.position = 'relative';
-        element.appendChild(ripple);
-        
-        setTimeout(() => {
-            ripple.remove();
-        }, 600);
-    }
-
-    addScanEffect(element) {
-        const scanLine = document.createElement('div');
-        scanLine.style.position = 'absolute';
-        scanLine.style.top = '0';
-        scanLine.style.left = '0';
-        scanLine.style.width = '100%';
-        scanLine.style.height = '2px';
-        scanLine.style.background = 'linear-gradient(90deg, transparent, var(--jarvis-cyan), transparent)';
-        scanLine.style.animation = 'scan-sweep 1s ease-in-out';
-        scanLine.style.pointerEvents = 'none';
-        
-        element.style.position = 'relative';
-        element.appendChild(scanLine);
-        
-        setTimeout(() => {
-            scanLine.remove();
-        }, 1000);
-    }
-
-    playHoverSound() {
-        // Create audio context for UI sounds
-        if (!this.audioContext) {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
-        gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
-        
-        oscillator.start(this.audioContext.currentTime);
-        oscillator.stop(this.audioContext.currentTime + 0.1);
-    }
-
-    playClickSound() {
-        if (!this.audioContext) return;
-        
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(1200, this.audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(600, this.audioContext.currentTime + 0.1);
-        gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
-        
-        oscillator.start(this.audioContext.currentTime);
-        oscillator.stop(this.audioContext.currentTime + 0.1);
-    }
-
-    initNotificationSystem() {
-        this.notificationQueue = [];
-        this.isShowingNotification = false;
-    }
-
-    showNotification(title, message, duration = 3000) {
-        this.notificationQueue.push({ title, message, duration });
-        
-        if (!this.isShowingNotification) {
-            this.processNotificationQueue();
-        }
-    }
-
-    processNotificationQueue() {
-        if (this.notificationQueue.length === 0) {
-            this.isShowingNotification = false;
-            return;
-        }
-        
-        this.isShowingNotification = true;
-        const { title, message, duration } = this.notificationQueue.shift();
-        
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = 'YASH-notification';
-        notification.innerHTML = `
-            <div class="notification-header">
-                <i class="fas fa-robot notification-icon"></i>
-                <span class="notification-title">${title}</span>
-            </div>
-            <div class="notification-message">${message}</div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Show notification
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 100);
-        
-        // Hide notification
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                notification.remove();
-                this.processNotificationQueue();
-            }, 300);
-        }, duration);
-    }
-
-    initAIGreeting() {
-        const greetings = [
-            'Good to see you again, Sir.',
-            'All systems are functioning within normal parameters.',
-            'How may I assist you today?',
-            'Portfolio systems are online and ready.',
-            'Welcome to the YASH interface.'
-        ];
-        
-        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-        
-        setTimeout(() => {
-            this.showNotification('YASH', randomGreeting, 4000);
-        }, 2000);
-    }
-
-    triggerEntranceAnimations() {
-        // Animate hero elements
-        const heroElements = document.querySelectorAll('.hero-content > *');
-        heroElements.forEach((element, index) => {
-            element.style.opacity = '0';
-            element.style.transform = 'translateY(30px)';
-            
-            setTimeout(() => {
-                element.style.transition = 'all 0.8s ease';
-                element.style.opacity = '1';
-                element.style.transform = 'translateY(0)';
-            }, index * 200);
-        });
-        
-        // Animate avatar
-        const avatar = document.querySelector('.jarvis-avatar');
-        if (avatar) {
-            avatar.style.opacity = '0';
-            avatar.style.transform = 'scale(0.8)';
-            
-            setTimeout(() => {
-                avatar.style.transition = 'all 1s ease';
-                avatar.style.opacity = '1';
-                avatar.style.transform = 'scale(1)';
-            }, 800);
-        }
-    }
-
-    // Project filtering
     initProjectFiltering() {
         const filterBtns = document.querySelectorAll('.filter-btn');
         const projectCards = document.querySelectorAll('.project-card');
+        
+        if (filterBtns.length === 0) return;
         
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -735,13 +378,110 @@ class JARVISPortfolio {
         });
     }
 
-    // Form handling with JARVIS feedback
+    initHUDElements() {
+        // Update HUD periodically
+        setInterval(() => {
+            this.updateHUDInfo();
+        }, 5000);
+    }
+
+    updateHUDInfo() {
+        // Update current section info
+        console.log(`Current section: ${this.currentSection}`);
+    }
+
+    initInteractiveElements() {
+        // Add interactive effects to all clickable elements
+        const interactiveElements = document.querySelectorAll('.jarvis-btn, .project-card, .skill-panel, .contact-card');
+        
+        interactiveElements.forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                element.style.filter = 'brightness(1.2)';
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                element.style.filter = 'brightness(1)';
+            });
+            
+            element.addEventListener('click', () => {
+                this.createRippleEffect(element);
+            });
+        });
+        
+        // Add scan effect to panels
+        const panels = document.querySelectorAll('.about-panel, .skill-panel, .contact-card');
+        panels.forEach(panel => {
+            panel.addEventListener('mouseenter', () => {
+                this.addScanEffect(panel);
+            });
+        });
+    }
+
+    createRippleEffect(element) {
+        const ripple = document.createElement('div');
+        ripple.style.position = 'absolute';
+        ripple.style.borderRadius = '50%';
+        ripple.style.background = 'rgba(0, 212, 255, 0.6)';
+        ripple.style.transform = 'scale(0)';
+        ripple.style.animation = 'ripple 0.6s linear';
+        ripple.style.pointerEvents = 'none';
+        
+        const rect = element.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = rect.width / 2 - size / 2;
+        const y = rect.height / 2 - size / 2;
+        
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        
+        element.style.position = 'relative';
+        element.appendChild(ripple);
+        
+        setTimeout(() => {
+            if (ripple.parentNode) ripple.remove();
+        }, 600);
+    }
+
+    addScanEffect(element) {
+        const scanLine = document.createElement('div');
+        scanLine.style.position = 'absolute';
+        scanLine.style.top = '0';
+        scanLine.style.left = '0';
+        scanLine.style.width = '100%';
+        scanLine.style.height = '2px';
+        scanLine.style.background = 'linear-gradient(90deg, transparent, var(--jarvis-cyan), transparent)';
+        scanLine.style.animation = 'scan-sweep 1s ease-in-out';
+        scanLine.style.pointerEvents = 'none';
+        
+        element.style.position = 'relative';
+        element.appendChild(scanLine);
+        
+        setTimeout(() => {
+            if (scanLine.parentNode) scanLine.remove();
+        }, 1000);
+    }
+
     initFormHandler() {
         const form = document.getElementById('contactForm');
         if (!form) return;
-        
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const formData = new FormData(form);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                subject: formData.get('subject'),
+                message: formData.get('message')
+            };
+            
+            // Validate form data
+            if (!data.name || !data.email || !data.subject || !data.message) {
+                this.showNotification('YASH', 'All fields are required for transmission.');
+                return;
+            }
             
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
@@ -770,6 +510,55 @@ class JARVISPortfolio {
             }
         });
     }
+    initNotificationSystem() {
+        this.notificationQueue = [];
+        this.isShowingNotification = false;
+    }
+
+    showNotification(title, message, duration = 3000) {
+        this.notificationQueue.push({ title, message, duration });
+        
+        if (!this.isShowingNotification) {
+            this.processNotificationQueue();
+        }
+    }
+
+    processNotificationQueue() {
+        if (this.notificationQueue.length === 0) {
+            this.isShowingNotification = false;
+            return;
+        }
+        
+        this.isShowingNotification = true;
+        const { title, message, duration } = this.notificationQueue.shift();
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'jarvis-notification';
+        notification.innerHTML = `
+            <div class="notification-header">
+                <i class="fas fa-robot notification-icon"></i>
+                <span class="notification-title">${title}</span>
+            </div>
+            <div class="notification-message">${message}</div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+        
+        // Hide notification
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentNode) notification.remove();
+                this.processNotificationQueue();
+            }, 300);
+        }, duration);
+    }
 
     addSuccessEffect(element) {
         element.style.border = '1px solid var(--jarvis-green)';
@@ -781,89 +570,37 @@ class JARVISPortfolio {
         }, 2000);
     }
 
-    // Real-time data simulation
-    initRealTimeData() {
-        const dataElements = document.querySelectorAll('.data-fill');
-        
-        setInterval(() => {
-            dataElements.forEach(element => {
-                const randomWidth = Math.random() * 40 + 60; // 60-100%
-                element.style.width = randomWidth + '%';
-            });
-        }, 3000);
-    }
-
-    // System diagnostics
-    runDiagnostics() {
-        const diagnostics = [
-            'Running system diagnostics...',
-            'Checking neural network integrity...',
-            'Validating data connections...',
-            'Testing user interface responsiveness...',
-            'All systems operational.'
-        ];
-        
-        diagnostics.forEach((message, index) => {
+    triggerEntranceAnimations() {
+        // Animate hero elements
+        const heroElements = document.querySelectorAll('.hero-content > *');
+        heroElements.forEach((element, index) => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(30px)';
+            
             setTimeout(() => {
-                this.showNotification('YASH', message);
-            }, index * 1000);
+                element.style.transition = 'all 0.8s ease';
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }, index * 200);
         });
-    }
-
-    // Easter eggs and special commands
-    initEasterEggs() {
-        let konamiCode = [];
-        const konamiSequence = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // ↑↑↓↓←→←→BA
         
-        document.addEventListener('keydown', (e) => {
-            konamiCode.push(e.keyCode);
+        // Animate avatar
+        const avatar = document.querySelector('.jarvis-avatar');
+        if (avatar) {
+            avatar.style.opacity = '0';
+            avatar.style.transform = 'scale(0.8)';
             
-            if (konamiCode.length > konamiSequence.length) {
-                konamiCode.shift();
-            }
-            
-            if (JSON.stringify(konamiCode) === JSON.stringify(konamiSequence)) {
-                this.activateEasterEgg();
-                konamiCode = [];
-            }
-        });
+            setTimeout(() => {
+                avatar.style.transition = 'all 1s ease';
+                avatar.style.opacity = '1';
+                avatar.style.transform = 'scale(1)';
+            }, 800);
+        }
     }
 
-    activateEasterEgg() {
-        this.showNotification('YASH', 'Easter egg activated! Initiating special mode...');
-        
-        // Add special effects
-        document.body.style.filter = 'hue-rotate(180deg)';
-        
-        setTimeout(() => {
-            document.body.style.filter = 'none';
-            this.showNotification('YASH', 'Special mode deactivated. Returning to normal operations.');
-        }, 5000);
-    }
-
-    // Performance monitoring
-    monitorPerformance() {
-        const observer = new PerformanceObserver((list) => {
-            list.getEntries().forEach((entry) => {
-                if (entry.entryType === 'navigation') {
-                    console.log(`Page load time: ${entry.loadEventEnd - entry.loadEventStart}ms`);
-                }
-            });
-        });
-        
-        observer.observe({ entryTypes: ['navigation'] });
-    }
 
     // Cleanup
     destroy() {
-        if (this.recognition) {
-            this.recognition.stop();
-        }
-        
-        if (this.audioContext) {
-            this.audioContext.close();
-        }
-        
         console.log('🤖 YASH Portfolio System Shutdown');
     }
 }
@@ -891,12 +628,16 @@ document.head.appendChild(rippleStyles);
 // Global error handling
 window.addEventListener('error', (e) => {
     console.error('YASH System Error:', e.error);
-    jarvisPortfolio.showNotification('YASH', 'System error detected. Running diagnostics...');
+    if (jarvisPortfolio && jarvisPortfolio.showNotification) {
+        jarvisPortfolio.showNotification('YASH', 'System error detected. Running diagnostics...');
+    }
 });
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', () => {
-    jarvisPortfolio.destroy();
+    if (jarvisPortfolio && jarvisPortfolio.destroy) {
+        jarvisPortfolio.destroy();
+    }
 });
 
 // Export for testing
