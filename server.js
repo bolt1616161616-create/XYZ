@@ -14,14 +14,20 @@ app.use(express.json());
 app.use(express.static('.'));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log('Connected to MongoDB');
-}).catch(err => {
-    console.error('MongoDB connection error:', err);
-});
+const connectDB = async () => {
+    try {
+        const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    } catch (error) {
+        console.error('❌ MongoDB connection error:', error);
+        process.exit(1);
+    }
+};
+
+connectDB();
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -38,7 +44,8 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         trim: true,
-        lowercase: true
+        lowercase: true,
+        match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
     },
     password: {
         type: String,
@@ -62,11 +69,15 @@ const userSchema = new mongoose.Schema({
     },
     isVerified: {
         type: Boolean,
-        default: false
+        default: true // Auto-verify for demo
     },
     lastLogin: {
         type: Date,
         default: Date.now
+    },
+    profileImage: {
+        type: String,
+        default: null
     }
 }, {
     timestamps: true
@@ -102,7 +113,7 @@ const authenticateToken = async (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
         const user = await User.findById(decoded.userId).select('-password');
         
         if (!user) {
@@ -157,7 +168,7 @@ app.post('/api/auth/register', async (req, res) => {
         // Generate JWT token
         const token = jwt.sign(
             { userId: user._id },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'your-secret-key',
             { expiresIn: '7d' }
         );
 
@@ -175,6 +186,10 @@ app.post('/api/auth/register', async (req, res) => {
         });
     } catch (error) {
         console.error('Registration error:', error);
+        if (error.code === 11000) {
+            const field = Object.keys(error.keyPattern)[0];
+            return res.status(400).json({ message: `${field} already exists` });
+        }
         res.status(500).json({ message: 'Server error during registration' });
     }
 });
@@ -192,13 +207,13 @@ app.post('/api/auth/login', async (req, res) => {
         // Find user
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Invalid email or password' });
         }
 
         // Check password
         const isPasswordValid = await user.comparePassword(password);
         if (!isPasswordValid) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Invalid email or password' });
         }
 
         // Update last login
@@ -208,7 +223,7 @@ app.post('/api/auth/login', async (req, res) => {
         // Generate JWT token
         const token = jwt.sign(
             { userId: user._id },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'your-secret-key',
             { expiresIn: '7d' }
         );
 
@@ -246,68 +261,19 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
     });
 });
 
-// Logout (client-side token removal)
+// Logout
 app.post('/api/auth/logout', authenticateToken, async (req, res) => {
-    res.json({ message: 'Logout successful' });
+    res.json({ message: 'Logged out successfully' });
 });
 
-// Protected route for projects
-app.get('/api/projects', authenticateToken, async (req, res) => {
-    try {
-        // Here you can add project data from database or return static data
-        const projects = [
-            {
-                id: 1,
-                title: 'MANASMITRA AI PLATFORM',
-                description: 'Revolutionary AI-powered mental health platform with intelligent counselor matching and 24/7 support capabilities.',
-                category: 'ai',
-                tags: ['AI', 'NEURAL NETWORKS', 'HEALTHCARE', 'RESEARCH'],
-                link: 'https://www.linkedin.com/search/results/all/?heroEntityKey=urn%3Ali%3Aorganization%3A104112688&keywords=Manas%20Mitra&origin=ENTITY_SEARCH_HOME_HISTORY',
-                image: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg'
-            },
-            {
-                id: 2,
-                title: 'INTERACTIVE WINDOW SYSTEM',
-                description: 'Advanced window management interface with drag, resize, minimize, and maximize functionality.',
-                category: 'web',
-                tags: ['JAVASCRIPT', 'UI/UX', 'INTERACTIVE'],
-                link: 'Port/Menu/HTMLTasks/draggable.html',
-                image: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg'
-            },
-            {
-                id: 3,
-                title: 'CONTAINER ORCHESTRATION HUB',
-                description: 'Comprehensive Docker management system with monitoring, deployment, and scaling automation.',
-                category: 'devops',
-                tags: ['DOCKER', 'ORCHESTRATION', 'MONITORING'],
-                link: 'Port/Menu/docker.html',
-                image: 'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg'
-            },
-            {
-                id: 4,
-                title: 'AWS COMMAND CENTER',
-                description: 'Comprehensive AWS infrastructure management with automated scaling and monitoring.',
-                category: 'aws',
-                tags: ['AWS', 'BOTO3', 'AUTOMATION'],
-                link: 'Port/Menu/AWSfiles/boto3.html',
-                image: 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg'
-            }
-        ];
-        
-        res.json({ projects });
-    } catch (error) {
-        console.error('Projects fetch error:', error);
-        res.status(500).json({ message: 'Error fetching projects' });
-    }
+// Protected route for projects page
+app.get('/projec.html', authenticateToken, (req, res) => {
+    res.sendFile(path.join(__dirname, 'projec.html'));
 });
 
 // Serve static files
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/projects', (req, res) => {
-    res.sendFile(path.join(__dirname, 'projec.html'));
 });
 
 app.get('/login', (req, res) => {
@@ -316,6 +282,19 @@ app.get('/login', (req, res) => {
 
 app.get('/signup', (req, res) => {
     res.sendFile(path.join(__dirname, 'signup.html'));
+});
+
+// Catch all other routes and redirect to login if not authenticated
+app.get('*', (req, res, next) => {
+    // Allow access to public files
+    const publicPaths = ['/', '/index.html', '/login.html', '/signup.html', '/css/', '/js/', '/images/'];
+    const isPublicPath = publicPaths.some(path => req.path.startsWith(path));
+    
+    if (isPublicPath) {
+        next();
+    } else {
+        res.redirect('/login.html');
+    }
 });
 
 const PORT = process.env.PORT || 3000;

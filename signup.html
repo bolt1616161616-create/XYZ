@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - For Portfolio Access</title>
+    <title>Register - Portfolio Access</title>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,28 +11,81 @@
     <!-- Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Styles -->
-    <link rel="stylesheet" href="css/jarvis.css">
-    
     <style>
+        :root {
+            --primary-blue: #00d4ff;
+            --primary-cyan: #00ffff;
+            --primary-green: #00ff88;
+            --primary-red: #ff4444;
+            --primary-gold: #ffd700;
+            --bg-dark: #0a0a0a;
+            --bg-secondary: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #00d4ff;
+            --text-muted: #888888;
+            --glow-primary: 0 0 20px var(--primary-blue);
+            --glow-secondary: 0 0 30px var(--primary-cyan);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background Effects */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.1;
+        }
+
+        .holo-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: grid-pulse 3s ease-in-out infinite alternate;
+        }
+
         .auth-container {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: 1rem;
         }
         
         .auth-card {
             background: rgba(0, 0, 0, 0.9);
-            border: 2px solid var(--jarvis-blue);
+            border: 2px solid var(--primary-blue);
             border-radius: 20px;
-            padding: 3rem;
+            padding: 2rem;
             width: 100%;
             max-width: 500px;
             position: relative;
             overflow: hidden;
-            box-shadow: var(--glow-intense);
+            box-shadow: var(--glow-primary);
+            backdrop-filter: blur(10px);
         }
         
         .auth-card::before {
@@ -42,7 +95,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--jarvis-blue), var(--jarvis-cyan), var(--jarvis-blue));
+            background: linear-gradient(90deg, var(--primary-blue), var(--primary-cyan), var(--primary-blue));
             animation: auth-scan 2s linear infinite;
         }
         
@@ -54,7 +107,7 @@
         .auth-logo {
             width: 80px;
             height: 80px;
-            background: linear-gradient(45deg, var(--jarvis-blue), var(--jarvis-cyan));
+            background: linear-gradient(45deg, var(--primary-blue), var(--primary-cyan));
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -69,16 +122,16 @@
         
         .auth-title {
             font-family: 'Orbitron', monospace;
-            font-size: 1.8rem;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
             font-weight: 900;
-            color: var(--jarvis-blue);
+            color: var(--primary-blue);
             text-shadow: var(--glow-primary);
             margin-bottom: 0.5rem;
         }
         
         .auth-subtitle {
-            color: var(--jarvis-cyan);
-            font-size: 0.9rem;
+            color: var(--primary-cyan);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
             text-shadow: var(--glow-secondary);
         }
         
@@ -93,6 +146,13 @@
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
         }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
         
         .form-group {
             position: relative;
@@ -102,7 +162,7 @@
             display: block;
             font-family: 'Orbitron', monospace;
             font-size: 0.8rem;
-            color: var(--jarvis-cyan);
+            color: var(--primary-cyan);
             margin-bottom: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -112,7 +172,7 @@
             width: 100%;
             padding: 1rem;
             background: rgba(0, 0, 0, 0.7);
-            border: 1px solid var(--jarvis-blue);
+            border: 1px solid var(--primary-blue);
             border-radius: 8px;
             color: var(--text-primary);
             font-size: 1rem;
@@ -122,13 +182,23 @@
         
         .form-input:focus {
             outline: none;
-            border-color: var(--jarvis-cyan);
+            border-color: var(--primary-cyan);
             box-shadow: var(--glow-secondary);
             background: rgba(0, 0, 0, 0.9);
         }
         
         .form-input::placeholder {
             color: var(--text-muted);
+        }
+        
+        .form-input.error {
+            border-color: var(--primary-red);
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+        }
+
+        .form-input.success {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
         }
         
         .password-toggle {
@@ -138,14 +208,19 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--jarvis-blue);
+            color: var(--primary-blue);
             cursor: pointer;
             font-size: 1rem;
             margin-top: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-cyan);
         }
         
         .auth-submit {
-            background: linear-gradient(45deg, var(--jarvis-blue), var(--jarvis-cyan));
+            background: linear-gradient(45deg, var(--primary-blue), var(--primary-cyan));
             color: white;
             border: none;
             padding: 1rem;
@@ -159,11 +234,15 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         
-        .auth-submit:hover {
+        .auth-submit:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: var(--glow-intense);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
         }
         
         .auth-submit:disabled {
@@ -180,37 +259,36 @@
         }
         
         .auth-link {
-            color: var(--jarvis-blue);
+            color: var(--primary-blue);
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s ease;
         }
         
         .auth-link:hover {
-            color: var(--jarvis-cyan);
+            color: var(--primary-cyan);
             text-shadow: var(--glow-secondary);
         }
         
-        .error-message {
-            background: rgba(255, 68, 68, 0.1);
-            border: 1px solid #ff4444;
-            color: #ff4444;
+        .message {
             padding: 1rem;
             border-radius: 8px;
             font-size: 0.9rem;
             margin-bottom: 1rem;
             display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .error-message {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid var(--primary-red);
+            color: var(--primary-red);
         }
         
         .success-message {
             background: rgba(0, 255, 136, 0.1);
-            border: 1px solid var(--jarvis-green);
-            color: var(--jarvis-green);
-            padding: 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            display: none;
+            border: 1px solid var(--primary-green);
+            color: var(--primary-green);
         }
         
         .password-strength {
@@ -235,61 +313,112 @@
         }
         
         .strength-weak .strength-fill {
-            background: #ff4444;
+            background: var(--primary-red);
             width: 25%;
         }
         
         .strength-medium .strength-fill {
-            background: #ffd700;
+            background: var(--primary-gold);
             width: 50%;
         }
         
         .strength-strong .strength-fill {
-            background: var(--jarvis-green);
+            background: var(--primary-green);
             width: 75%;
         }
         
         .strength-very-strong .strength-fill {
-            background: var(--jarvis-cyan);
+            background: var(--primary-cyan);
             width: 100%;
         }
         
-        @keyframes auth-scan {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        
-        @keyframes logo-pulse {
-            0%, 100% { box-shadow: 0 0 20px var(--jarvis-blue); }
-            50% { box-shadow: 0 0 40px var(--jarvis-blue), 0 0 60px var(--jarvis-cyan); }
-        }
-        
         .loading-spinner {
-            display: none;
             width: 20px;
             height: 20px;
             border: 2px solid transparent;
             border-top: 2px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-right: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .auth-container {
+                padding: 0.5rem;
+            }
+            
+            .auth-card {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .auth-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            .form-input {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            .auth-submit {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes auth-scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes logo-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px var(--primary-blue);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 40px var(--primary-blue), 0 0 60px var(--primary-cyan);
+                transform: scale(1.05);
+            }
         }
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        @keyframes grid-pulse {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Matrix Background -->
+    <!-- Background Effects -->
     <div class="matrix-bg"></div>
-    
-    <!-- Holographic Grid -->
     <div class="holo-grid"></div>
-    
-    <!-- Scan Lines -->
-    <div class="scan-lines"></div>
 
     <div class="auth-container">
         <div class="auth-card">
@@ -299,8 +428,8 @@
                 <p class="auth-subtitle">Create new access credentials for portfolio database</p>
             </div>
             
-            <div class="error-message" id="errorMessage"></div>
-            <div class="success-message" id="successMessage"></div>
+            <div class="error-message message" id="errorMessage"></div>
+            <div class="success-message message" id="successMessage"></div>
             
             <form class="auth-form" id="signupForm">
                 <div class="form-row">
@@ -344,7 +473,6 @@
                 </div>
                 
                 <button type="submit" class="auth-submit" id="submitBtn">
-                    <span class="loading-spinner" id="loadingSpinner"></span>
                     <span id="submitText">Create Access Profile</span>
                 </button>
             </form>
@@ -391,12 +519,37 @@
                 confirmPasswordInput.addEventListener('input', () => {
                     this.validatePasswordMatch();
                 });
+
+                // Real-time validation
+                document.getElementById('email').addEventListener('blur', () => {
+                    this.validateEmail();
+                });
+
+                document.getElementById('username').addEventListener('blur', () => {
+                    this.validateUsername();
+                });
             }
             
-            checkExistingAuth() {
+            async checkExistingAuth() {
                 const token = localStorage.getItem('authToken');
                 if (token) {
-                    window.location.href = 'projec.html';
+                    try {
+                        const response = await fetch('/api/auth/me', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            window.location.href = 'projec.html';
+                        } else {
+                            localStorage.removeItem('authToken');
+                            localStorage.removeItem('user');
+                        }
+                    } catch (error) {
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('user');
+                    }
                 }
             }
             
@@ -445,25 +598,57 @@
                 const confirmInput = document.getElementById('confirmPassword');
                 
                 if (confirmPassword && password !== confirmPassword) {
-                    confirmInput.style.borderColor = '#ff4444';
-                    confirmInput.style.boxShadow = '0 0 10px rgba(255, 68, 68, 0.5)';
+                    confirmInput.classList.add('error');
+                    confirmInput.classList.remove('success');
                 } else if (confirmPassword) {
-                    confirmInput.style.borderColor = var(--jarvis-green);
-                    confirmInput.style.boxShadow = '0 0 10px rgba(0, 255, 136, 0.5)';
+                    confirmInput.classList.add('success');
+                    confirmInput.classList.remove('error');
+                }
+            }
+
+            validateEmail() {
+                const email = document.getElementById('email').value;
+                const emailInput = document.getElementById('email');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (email && !emailRegex.test(email)) {
+                    emailInput.classList.add('error');
+                    emailInput.classList.remove('success');
+                } else if (email) {
+                    emailInput.classList.add('success');
+                    emailInput.classList.remove('error');
+                }
+            }
+
+            validateUsername() {
+                const username = document.getElementById('username').value;
+                const usernameInput = document.getElementById('username');
+                
+                if (username && username.length < 3) {
+                    usernameInput.classList.add('error');
+                    usernameInput.classList.remove('success');
+                } else if (username) {
+                    usernameInput.classList.add('success');
+                    usernameInput.classList.remove('error');
                 }
             }
             
             async handleSignup(e) {
                 e.preventDefault();
                 
-                const firstName = document.getElementById('firstName').value;
-                const lastName = document.getElementById('lastName').value;
-                const username = document.getElementById('username').value;
-                const email = document.getElementById('email').value;
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
                 
                 // Validation
+                if (!firstName || !lastName || !username || !email || !password || !confirmPassword) {
+                    this.showError('All fields are required');
+                    return;
+                }
+
                 if (password !== confirmPassword) {
                     this.showError('Passwords do not match');
                     return;
@@ -473,15 +658,24 @@
                     this.showError('Password must be at least 6 characters');
                     return;
                 }
+
+                if (username.length < 3) {
+                    this.showError('Username must be at least 3 characters');
+                    return;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    this.showError('Please enter a valid email address');
+                    return;
+                }
                 
                 const submitBtn = document.getElementById('submitBtn');
                 const submitText = document.getElementById('submitText');
-                const loadingSpinner = document.getElementById('loadingSpinner');
                 
                 // Show loading state
                 submitBtn.disabled = true;
-                loadingSpinner.style.display = 'inline-block';
-                submitText.textContent = 'Creating Profile...';
+                submitText.innerHTML = '<div class="loading-spinner"></div> Creating Profile...';
                 
                 try {
                     const response = await fetch('/api/auth/register', {
@@ -501,24 +695,23 @@
                     const data = await response.json();
                     
                     if (response.ok) {
-                        // Store token
+                        // Store token and user data
                         localStorage.setItem('authToken', data.token);
                         localStorage.setItem('user', JSON.stringify(data.user));
                         
-                        this.showSuccess('Profile created successfully! Redirecting...');
+                        this.showSuccess('Profile created successfully! Redirecting to portfolio...');
                         
                         setTimeout(() => {
                             window.location.href = 'projec.html';
                         }, 1500);
                     } else {
-                        this.showError(data.message);
+                        this.showError(data.message || 'Registration failed');
                     }
                 } catch (error) {
                     console.error('Signup error:', error);
-                    this.showError('Connection failed. Please try again.');
+                    this.showError('Connection failed. Please check your internet connection and try again.');
                 } finally {
                     submitBtn.disabled = false;
-                    loadingSpinner.style.display = 'none';
                     submitText.textContent = 'Create Access Profile';
                 }
             }
