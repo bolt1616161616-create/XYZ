@@ -47,10 +47,19 @@
 
     <!-- JARVIS Loading Screen -->
     <div class="jarvis-loading" id="loadingScreen">
-    <div class="jarvis-voice-assistant" id="jarvisVoice">
+        <div class="loading-content">
+            <div class="jarvis-logo"></div>
+            <div class="loading-text">Initializing JARVIS Systems...</div>
+            <div class="loading-progress">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JARVIS Voice Assistant -->
+    <div class="voice-assistant" id="voiceAssistant">
         <button class="voice-btn" id="voiceBtn">
             <i class="fas fa-microphone" id="voiceIcon"></i>
-            <div class="voice-pulse"></div>
         </button>
         <div class="voice-status" id="voiceStatus">
             <span class="status-text">JARVIS READY</span>
@@ -86,14 +95,7 @@
         </div>
         
         <div class="chat-messages" id="chatMessages">
-            <div class="message bot-message">
-                <div class="message-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="message-content">
-                    <p>Hello! I'm Gemini AI, Yash's intelligent assistant. I can help you navigate his portfolio, answer questions about his projects, or discuss his technical expertise. How can I assist you today?</p>
-                </div>
-            </div>
+            <!-- Messages will be added dynamically -->
         </div>
         
         <div class="chat-input-container">

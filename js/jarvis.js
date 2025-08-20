@@ -1,138 +1,301 @@
-// JARVIS Portfolio - Advanced AI Interface
-
-class JARVISPortfolio {
+// JARVIS Portfolio JavaScript - Main Controller
+class JarvisPortfolio {
     constructor() {
-        this.isInitialized = false;
-        this.voiceEnabled = false;
+        this.isLoaded = false;
         this.currentSection = 'home';
-        this.particles = [];
-        this.matrixChars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+        this.skillsAnimated = false;
+        this.statsAnimated = false;
         this.init();
     }
 
-    async init() {
-        console.log('🤖 Initializing Yash Agarwal Portfolio System...');
+    init() {
+        this.showLoadingScreen();
+        this.bindEvents();
+        this.initializeComponents();
+        this.setupIntersectionObserver();
+        this.createParticles();
         
-        // Wait for DOM
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.start());
-        } else {
-            this.start();
+        // Hide loading screen after initialization
+        setTimeout(() => {
+            this.hideLoadingScreen();
+        }, 3000);
+    }
+
+    showLoadingScreen() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            loadingScreen.style.display = 'flex';
         }
     }
 
-    async start() {
-        // Initialize all systems
-        this.initLoadingSequence();
-        this.initMatrixBackground();
-        this.initParticleSystem();
-        this.initNavigation();
-        this.initTypingEffect();
-        this.initScrollEffects();
-        this.initHUDElements();
-        this.initInteractiveElements();
-        this.initNotificationSystem();
-        this.initFormHandler();
-        this.initProjectFiltering();
-        
-        // Start loading sequence
-        setTimeout(() => {
-            this.completeLoading();
-        }, 3000);
-        
-        console.log('✅ Yash Portfolio System Online');
+    hideLoadingScreen() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            loadingScreen.classList.add('hidden');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                this.isLoaded = true;
+                this.animateHeroStats();
+            }, 1000);
+        }
     }
 
-    initLoadingSequence() {
-        const loadingScreen = document.querySelector('.jarvis-loading');
-        if (!loadingScreen) return;
+    bindEvents() {
+        // Navigation
+        this.setupNavigation();
         
-        const progressBar = document.querySelector('.progress-bar');
+        // Smooth scrolling
+        this.setupSmoothScrolling();
         
-        // Simulate system initialization
-        const loadingSteps = [
-            'Initializing Neural Networks...',
-            'Loading AI Modules...',
-            'Connecting to Database...',
-            'Calibrating Sensors...',
-            'System Ready'
-        ];
+        // Form handling
+        this.setupContactForm();
         
-        let currentStep = 0;
-        const loadingText = document.querySelector('.loading-text');
+        // Filter functionality
+        this.setupProjectFilters();
         
-        const stepInterval = setInterval(() => {
-            if (currentStep < loadingSteps.length) {
-                if (loadingText) loadingText.textContent = loadingSteps[currentStep];
-                this.showNotification('YASH', loadingSteps[currentStep]);
-                currentStep++;
-            } else {
-                clearInterval(stepInterval);
-            }
-        }, 600);
+        // Typing animation
+        this.setupTypingAnimation();
+        
+        // Window events
+        window.addEventListener('scroll', () => this.handleScroll());
+        window.addEventListener('resize', () => this.handleResize());
     }
 
-    completeLoading() {
-        const loadingScreen = document.querySelector('.jarvis-loading');
-        if (loadingScreen) loadingScreen.classList.add('hidden');
-        
-        // Initialize entrance animations
-        this.triggerEntranceAnimations();
-        
-        // Show welcome message
-        setTimeout(() => {
-            this.showNotification('YASH', 'Welcome back, Sir. All systems operational.');
-        }, 1000);
-        
-        this.isInitialized = true;
-    }
+    setupNavigation() {
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+        const navLinks = document.querySelectorAll('.nav-link');
 
-    initMatrixBackground() {
-        const matrixBg = document.querySelector('.matrix-bg');
-        if (!matrixBg) return;
-        
-        const canvas = document.createElement('canvas');
-        canvas.className = 'matrix-canvas';
-        matrixBg.appendChild(canvas);
-        
-        const ctx = canvas.getContext('2d');
-        
-        const resizeCanvas = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
-        
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        
-        const columns = Math.floor(canvas.width / 20);
-        const drops = Array(columns).fill(1);
-        
-        const drawMatrix = () => {
-            ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.fillStyle = '#00d4ff';
-            ctx.font = '15px Orbitron';
-            
-            for (let i = 0; i < drops.length; i++) {
-                const text = this.matrixChars[Math.floor(Math.random() * this.matrixChars.length)];
-                ctx.fillText(text, i * 20, drops[i] * 20);
-                
-                if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', () => {
+                menuToggle.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            });
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (href.startsWith('#')) {
+                    e.preventDefault();
+                    const targetId = href.substring(1);
+                    this.scrollToSection(targetId);
+                    
+                    // Close mobile menu
+                    if (navMenu) {
+                        navMenu.classList.remove('active');
+                        menuToggle.classList.remove('active');
+                    }
                 }
-                drops[i]++;
-            }
-        };
-        
-        setInterval(drawMatrix, 50);
+            });
+        });
     }
 
-    initParticleSystem() {
+    setupSmoothScrolling() {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = anchor.getAttribute('href').substring(1);
+                this.scrollToSection(targetId);
+            });
+        });
+    }
+
+    scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            const offsetTop = section.offsetTop - 80; // Account for fixed navbar
+            window.scrollTo({
+                top: offsetTop,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    setupContactForm() {
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleContactSubmit(e);
+            });
+        }
+    }
+
+    async handleContactSubmit(e) {
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+        
+        // Show loading state
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> TRANSMITTING...';
+        submitBtn.disabled = true;
+        
+        try {
+            // Simulate form submission
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Show success message
+            this.showNotification('Message transmitted successfully!', 'success');
+            e.target.reset();
+        } catch (error) {
+            this.showNotification('Transmission failed. Please try again.', 'error');
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    setupProjectFilters() {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.getAttribute('data-filter');
+                
+                // Update active filter
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Filter projects
+                projectCards.forEach(card => {
+                    const category = card.getAttribute('data-category');
+                    if (filter === 'all' || category === filter) {
+                        card.style.display = 'block';
+                        card.style.opacity = '1';
+                        card.style.transform = 'scale(1)';
+                    } else {
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            });
+        });
+    }
+
+    setupTypingAnimation() {
+        const typingElement = document.querySelector('.typing-text');
+        if (typingElement) {
+            const texts = [
+                'AI Engineer',
+                'Data Scientist',
+                'ML Specialist',
+                'Cloud Architect',
+                'DevOps Engineer',
+                'Full Stack Developer'
+            ];
+            
+            let textIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            
+            const typeText = () => {
+                const currentText = texts[textIndex];
+                
+                if (isDeleting) {
+                    typingElement.textContent = currentText.substring(0, charIndex - 1);
+                    charIndex--;
+                } else {
+                    typingElement.textContent = currentText.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+                
+                let typeSpeed = isDeleting ? 50 : 100;
+                
+                if (!isDeleting && charIndex === currentText.length) {
+                    typeSpeed = 2000;
+                    isDeleting = true;
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    textIndex = (textIndex + 1) % texts.length;
+                    typeSpeed = 500;
+                }
+                
+                setTimeout(typeText, typeSpeed);
+            };
+            
+            typeText();
+        }
+    }
+
+    setupIntersectionObserver() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const sectionId = entry.target.id;
+                    this.updateActiveNavLink(sectionId);
+                    
+                    // Trigger animations
+                    if (sectionId === 'skills' && !this.skillsAnimated) {
+                        this.animateSkills();
+                        this.skillsAnimated = true;
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('section[id]').forEach(section => {
+            observer.observe(section);
+        });
+    }
+
+    updateActiveNavLink(sectionId) {
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${sectionId}`) {
+                link.classList.add('active');
+            }
+        });
+        this.currentSection = sectionId;
+    }
+
+    animateHeroStats() {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach(stat => {
+            const target = parseInt(stat.getAttribute('data-count'));
+            let current = 0;
+            const increment = target / 50;
+            
+            const updateCount = () => {
+                if (current < target) {
+                    current += increment;
+                    stat.textContent = Math.ceil(current);
+                    requestAnimationFrame(updateCount);
+                } else {
+                    stat.textContent = target;
+                }
+            };
+            
+            updateCount();
+        });
+    }
+
+    animateSkills() {
+        const skillBars = document.querySelectorAll('.skill-progress');
+        skillBars.forEach((bar, index) => {
+            setTimeout(() => {
+                const progress = bar.getAttribute('data-progress');
+                bar.style.width = progress + '%';
+            }, index * 200);
+        });
+    }
+
+    createParticles() {
         const particlesContainer = document.querySelector('.particles');
         if (!particlesContainer) return;
-        
+
         const createParticle = () => {
             const particle = document.createElement('div');
             particle.className = 'particle';
@@ -143,402 +306,119 @@ class JARVISPortfolio {
             particlesContainer.appendChild(particle);
             
             setTimeout(() => {
-                if (particle.parentNode) particle.remove();
+                if (particle.parentNode) {
+                    particle.remove();
+                }
             }, 15000);
         };
-        
-        // Create particles periodically
-        setInterval(createParticle, 500);
-    }
 
-    initNavigation() {
-        const navLinks = document.querySelectorAll('.nav-link');
-        const menuToggle = document.querySelector('.menu-toggle');
-        const navMenu = document.querySelector('.nav-menu');
-        
-        // Mobile menu toggle
-        if (menuToggle) {
-            menuToggle.addEventListener('click', () => {
-                navMenu.classList.toggle('active');
-                menuToggle.classList.toggle('active');
-            });
+        // Create initial particles
+        for (let i = 0; i < 20; i++) {
+            setTimeout(createParticle, i * 200);
         }
-        
-        // Navigation with JARVIS feedback
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = link.getAttribute('href');
-                const targetSection = document.querySelector(targetId);
-                
-                if (targetSection) {
-                    // Update active link
-                    navLinks.forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
-                    
-                    // Smooth scroll with JARVIS feedback
-                    const sectionName = targetId.replace('#', '');
-                    this.showNotification('YASH', `Navigating to ${sectionName} section...`);
-                    
-                    targetSection.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    
-                    this.currentSection = sectionName;
-                }
-            });
-        });
-        
-        // Scroll spy
-        window.addEventListener('scroll', () => {
-            this.updateActiveNavigation();
-        });
+
+        // Continue creating particles
+        setInterval(createParticle, 1000);
     }
 
-    updateActiveNavigation() {
-        const sections = document.querySelectorAll('.jarvis-section[id]');
-        const scrollPos = window.scrollY + 100;
-        
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-            const sectionId = section.getAttribute('id');
-            
-            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-                document.querySelectorAll('.nav-link').forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${sectionId}`) {
-                        link.classList.add('active');
-                    }
-                });
-                
-                if (this.currentSection !== sectionId) {
-                    this.currentSection = sectionId;
-                    this.updateHUDInfo();
-                }
-            }
-        });
-    }
-
-    initTypingEffect() {
-        const typingElement = document.querySelector('.typing-text');
-        if (!typingElement) return;
-        
-        const texts = [
-            'AI Engineer',
-            'Data Scientist',
-            'Full Stack Developer',
-            'DevOps Specialist',
-            'Machine Learning Expert',
-            'Cloud Architect'
-        ];
-        
-        let textIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-        
-        const typeText = () => {
-            const currentText = texts[textIndex];
-            
-            if (isDeleting) {
-                typingElement.textContent = currentText.substring(0, charIndex - 1);
-                charIndex--;
+    handleScroll() {
+        const navbar = document.getElementById('navbar');
+        if (navbar) {
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
             } else {
-                typingElement.textContent = currentText.substring(0, charIndex + 1);
-                charIndex++;
+                navbar.classList.remove('scrolled');
             }
-            
-            let typeSpeed = isDeleting ? 50 : 100;
-            
-            if (!isDeleting && charIndex === currentText.length) {
-                typeSpeed = 2000;
-                isDeleting = true;
-            } else if (isDeleting && charIndex === 0) {
-                isDeleting = false;
-                textIndex = (textIndex + 1) % texts.length;
-                typeSpeed = 500;
-            }
-            
-            setTimeout(typeText, typeSpeed);
-        };
-        
-        typeText();
+        }
     }
 
-    initScrollEffects() {
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+    handleResize() {
+        // Handle responsive adjustments
+        const navMenu = document.getElementById('navMenu');
+        const menuToggle = document.getElementById('menuToggle');
         
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate');
-                    
-                    // Trigger specific animations
-                    if (entry.target.classList.contains('skill-progress')) {
-                        this.animateSkillBar(entry.target);
-                    }
-                    
-                    if (entry.target.classList.contains('stat-number')) {
-                        this.animateCounter(entry.target);
-                    }
-                    
-                    if (entry.target.classList.contains('project-card')) {
-                        this.animateProjectCard(entry.target);
-                    }
+        if (window.innerWidth > 768) {
+            if (navMenu) navMenu.classList.remove('active');
+            if (menuToggle) menuToggle.classList.remove('active');
+        }
+    }
+
+    initializeComponents() {
+        // Initialize any additional components
+        this.setupMatrixBackground();
+        this.setupHolographicEffects();
+    }
+
+    setupMatrixBackground() {
+        const matrixBg = document.querySelector('.matrix-bg');
+        if (!matrixBg) return;
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        matrixBg.appendChild(canvas);
+
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+        const matrixArray = matrix.split("");
+
+        const fontSize = 10;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        const draw = () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#00d4ff';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
                 }
-            });
-        }, observerOptions);
-        
-        // Observe elements
-        const animatedElements = document.querySelectorAll('.skill-panel, .project-card, .contact-card, .about-panel');
-        animatedElements.forEach(el => observer.observe(el));
-        
-        const skillBars = document.querySelectorAll('.skill-progress');
-        const counters = document.querySelectorAll('.stat-number');
-        
-        skillBars.forEach(bar => observer.observe(bar));
-        counters.forEach(counter => observer.observe(counter));
-    }
-
-    animateSkillBar(progressBar) {
-        const progress = progressBar.getAttribute('data-progress');
-        setTimeout(() => {
-            progressBar.style.width = progress + '%';
-        }, 300);
-    }
-
-    animateCounter(element) {
-        const target = parseInt(element.getAttribute('data-count'));
-        const duration = 2000;
-        const step = target / (duration / 16);
-        let current = 0;
-        
-        const timer = setInterval(() => {
-            current += step;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
+                drops[i]++;
             }
-            element.textContent = Math.floor(current);
-        }, 16);
+        };
+
+        setInterval(draw, 35);
     }
 
-    animateProjectCard(card) {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(30px)';
+    setupHolographicEffects() {
+        // Add holographic scanning effects
+        const holoElements = document.querySelectorAll('.holo-display, .skill-panel, .project-card');
         
-        setTimeout(() => {
-            card.style.transition = 'all 0.6s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, Math.random() * 300);
-    }
-
-    initProjectFiltering() {
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        const projectCards = document.querySelectorAll('.project-card');
-        
-        if (filterBtns.length === 0) return;
-        
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const filter = btn.getAttribute('data-filter');
-                
-                // Update active filter
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                // Filter projects with JARVIS feedback
-                this.showNotification('YASH', `Filtering projects: ${filter}`);
-                
-                projectCards.forEach(card => {
-                    const category = card.getAttribute('data-category');
-                    const shouldShow = filter === 'all' || category === filter;
-                    
-                    if (shouldShow) {
-                        card.style.display = 'block';
-                        setTimeout(() => {
-                            card.style.opacity = '1';
-                            card.style.transform = 'translateY(0)';
-                        }, 100);
-                    } else {
-                        card.style.opacity = '0';
-                        card.style.transform = 'translateY(20px)';
-                        setTimeout(() => {
-                            card.style.display = 'none';
-                        }, 300);
-                    }
-                });
-            });
-        });
-    }
-
-    initHUDElements() {
-        // Update HUD periodically
-        setInterval(() => {
-            this.updateHUDInfo();
-        }, 5000);
-    }
-
-    updateHUDInfo() {
-        // Update current section info
-        console.log(`Current section: ${this.currentSection}`);
-    }
-
-    initInteractiveElements() {
-        // Add interactive effects to all clickable elements
-        const interactiveElements = document.querySelectorAll('.jarvis-btn, .project-card, .skill-panel, .contact-card');
-        
-        interactiveElements.forEach(element => {
+        holoElements.forEach(element => {
             element.addEventListener('mouseenter', () => {
-                element.style.filter = 'brightness(1.2)';
+                element.style.boxShadow = '0 0 30px rgba(0, 212, 255, 0.5)';
             });
             
             element.addEventListener('mouseleave', () => {
-                element.style.filter = 'brightness(1)';
-            });
-            
-            element.addEventListener('click', () => {
-                this.createRippleEffect(element);
-            });
-        });
-        
-        // Add scan effect to panels
-        const panels = document.querySelectorAll('.about-panel, .skill-panel, .contact-card');
-        panels.forEach(panel => {
-            panel.addEventListener('mouseenter', () => {
-                this.addScanEffect(panel);
+                element.style.boxShadow = '';
             });
         });
     }
 
-    createRippleEffect(element) {
-        const ripple = document.createElement('div');
-        ripple.style.position = 'absolute';
-        ripple.style.borderRadius = '50%';
-        ripple.style.background = 'rgba(0, 212, 255, 0.6)';
-        ripple.style.transform = 'scale(0)';
-        ripple.style.animation = 'ripple 0.6s linear';
-        ripple.style.pointerEvents = 'none';
-        
-        const rect = element.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        const x = rect.width / 2 - size / 2;
-        const y = rect.height / 2 - size / 2;
-        
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        
-        element.style.position = 'relative';
-        element.appendChild(ripple);
-        
-        setTimeout(() => {
-            if (ripple.parentNode) ripple.remove();
-        }, 600);
-    }
-
-    addScanEffect(element) {
-        const scanLine = document.createElement('div');
-        scanLine.style.position = 'absolute';
-        scanLine.style.top = '0';
-        scanLine.style.left = '0';
-        scanLine.style.width = '100%';
-        scanLine.style.height = '2px';
-        scanLine.style.background = 'linear-gradient(90deg, transparent, var(--jarvis-cyan), transparent)';
-        scanLine.style.animation = 'scan-sweep 1s ease-in-out';
-        scanLine.style.pointerEvents = 'none';
-        
-        element.style.position = 'relative';
-        element.appendChild(scanLine);
-        
-        setTimeout(() => {
-            if (scanLine.parentNode) scanLine.remove();
-        }, 1000);
-    }
-
-    initFormHandler() {
-        const form = document.getElementById('contactForm');
-        if (!form) return;
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(form);
-            const data = {
-                name: formData.get('name'),
-                email: formData.get('email'),
-                subject: formData.get('subject'),
-                message: formData.get('message')
-            };
-            
-            // Validate form data
-            if (!data.name || !data.email || !data.subject || !data.message) {
-                this.showNotification('YASH', 'All fields are required for transmission.');
-                return;
-            }
-            
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            
-            // Show processing state
-            submitBtn.innerHTML = '<i class="fas fa-cog fa-spin"></i> <span>Processing...</span>';
-            submitBtn.disabled = true;
-            
-            this.showNotification('YASH', 'Processing your message...');
-            
-            try {
-                // Simulate form submission
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                this.showNotification('YASH', 'Message transmitted successfully. Awaiting response.');
-                form.reset();
-                
-                // Add success effect
-                this.addSuccessEffect(form);
-                
-            } catch (error) {
-                this.showNotification('YASH', 'Transmission failed. Please retry.');
-            } finally {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        });
-    }
-    initNotificationSystem() {
-        this.notificationQueue = [];
-        this.isShowingNotification = false;
-    }
-
-    showNotification(title, message, duration = 3000) {
-        this.notificationQueue.push({ title, message, duration });
-        
-        if (!this.isShowingNotification) {
-            this.processNotificationQueue();
-        }
-    }
-
-    processNotificationQueue() {
-        if (this.notificationQueue.length === 0) {
-            this.isShowingNotification = false;
-            return;
-        }
-        
-        this.isShowingNotification = true;
-        const { title, message, duration } = this.notificationQueue.shift();
-        
-        // Create notification element
+    showNotification(message, type = 'info') {
         const notification = document.createElement('div');
-        notification.className = 'jarvis-notification';
+        notification.className = `jarvis-notification ${type}`;
         notification.innerHTML = `
             <div class="notification-header">
-                <i class="fas fa-robot notification-icon"></i>
-                <span class="notification-title">${title}</span>
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} notification-icon"></i>
+                <span class="notification-title">${type.toUpperCase()}</span>
             </div>
             <div class="notification-message">${message}</div>
         `;
@@ -554,93 +434,38 @@ class JARVISPortfolio {
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
-                if (notification.parentNode) notification.remove();
-                this.processNotificationQueue();
+                if (notification.parentNode) {
+                    notification.remove();
+                }
             }, 300);
-        }, duration);
+        }, 4000);
     }
 
-    addSuccessEffect(element) {
-        element.style.border = '1px solid var(--jarvis-green)';
-        element.style.boxShadow = '0 0 20px var(--jarvis-green)';
-        
-        setTimeout(() => {
-            element.style.border = '1px solid var(--jarvis-blue)';
-            element.style.boxShadow = 'none';
-        }, 2000);
+    // Public methods for external access
+    navigateToSection(sectionId) {
+        this.scrollToSection(sectionId);
     }
 
-    triggerEntranceAnimations() {
-        // Animate hero elements
-        const heroElements = document.querySelectorAll('.hero-content > *');
-        heroElements.forEach((element, index) => {
-            element.style.opacity = '0';
-            element.style.transform = 'translateY(30px)';
-            
-            setTimeout(() => {
-                element.style.transition = 'all 0.8s ease';
-                element.style.opacity = '1';
-                element.style.transform = 'translateY(0)';
-            }, index * 200);
-        });
-        
-        // Animate avatar
-        const avatar = document.querySelector('.jarvis-avatar');
-        if (avatar) {
-            avatar.style.opacity = '0';
-            avatar.style.transform = 'scale(0.8)';
-            
-            setTimeout(() => {
-                avatar.style.transition = 'all 1s ease';
-                avatar.style.opacity = '1';
-                avatar.style.transform = 'scale(1)';
-            }, 800);
+    filterProjects(category) {
+        const filterBtn = document.querySelector(`[data-filter="${category}"]`);
+        if (filterBtn) {
+            filterBtn.click();
         }
     }
 
-
-    // Cleanup
-    destroy() {
-        console.log('🤖 YASH Portfolio System Shutdown');
+    getSystemStatus() {
+        return {
+            loaded: this.isLoaded,
+            currentSection: this.currentSection,
+            timestamp: new Date().toISOString()
+        };
     }
 }
 
 // Initialize JARVIS Portfolio
-const jarvisPortfolio = new JARVISPortfolio();
-
-// Add CSS animations for ripple effect
-const rippleStyles = document.createElement('style');
-rippleStyles.textContent = `
-    @keyframes ripple {
-        to {
-            transform: scale(4);
-            opacity: 0;
-        }
-    }
-    
-    @keyframes scan-sweep {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
-    }
-`;
-document.head.appendChild(rippleStyles);
-
-// Global error handling
-window.addEventListener('error', (e) => {
-    console.error('YASH System Error:', e.error);
-    if (jarvisPortfolio && jarvisPortfolio.showNotification) {
-        jarvisPortfolio.showNotification('YASH', 'System error detected. Running diagnostics...');
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    window.jarvisPortfolio = new JarvisPortfolio();
 });
 
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
-    if (jarvisPortfolio && jarvisPortfolio.destroy) {
-        jarvisPortfolio.destroy();
-    }
-});
-
-// Export for testing
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { JARVISPortfolio };
-}
+// Export for global access
+window.JarvisPortfolio = JarvisPortfolio;

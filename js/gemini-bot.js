@@ -1,105 +1,63 @@
-// Gemini AI Chatbot System
+// Gemini AI Chatbot Integration
 class GeminiChatbot {
     constructor() {
         this.isOpen = false;
+        this.isMinimized = false;
+        this.messages = [];
         this.isTyping = false;
-        this.messageHistory = [];
         this.init();
     }
 
     init() {
-        this.createChatInterface();
         this.bindEvents();
-        this.showWelcomeMessage();
-    }
-
-    createChatInterface() {
-        // Create chat toggle button
-        const toggleBtn = document.createElement('button');
-        toggleBtn.id = 'chatToggle';
-        toggleBtn.className = 'chat-toggle-btn';
-        toggleBtn.innerHTML = `
-            <i class="fas fa-comments"></i>
-            <div class="notification-badge" id="chatNotification">1</div>
-        `;
-        document.body.appendChild(toggleBtn);
-
-        // Create chat container
-        const chatContainer = document.createElement('div');
-        chatContainer.id = 'geminiChatbot';
-        chatContainer.className = 'gemini-chatbot';
-        chatContainer.innerHTML = `
-            <div class="chatbot-header">
-                <div class="bot-avatar">
-                    <i class="fas fa-robot"></i>
-                    <div class="avatar-pulse"></div>
-                </div>
-                <div class="bot-info">
-                    <h4>GEMINI AI</h4>
-                    <span class="bot-status">ONLINE</span>
-                </div>
-                <div class="chat-controls">
-                    <button class="control-btn" id="minimizeChat">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button class="control-btn" id="closeChat">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="chat-messages" id="chatMessages">
-                <div class="message bot-message">
-                    <div class="message-avatar">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="message-content">
-                        <p>Hello! I'm Gemini AI, Yash's intelligent assistant. I can help you navigate his portfolio, answer questions about his projects, or discuss his technical expertise. How can I assist you today?</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chat-input-container">
-                <div class="chat-input-wrapper">
-                    <input type="text" id="chatInput" placeholder="Ask me about Yash's work..." maxlength="500">
-                    <button id="sendMessage" class="send-btn">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                <div class="input-suggestions">
-                    <button class="suggestion-chip" data-message="Tell me about Yash's AI projects">AI Projects</button>
-                    <button class="suggestion-chip" data-message="What technologies does Yash use?">Technologies</button>
-                    <button class="suggestion-chip" data-message="Show me his experience">Experience</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(chatContainer);
+        this.loadChatHistory();
+        this.addWelcomeMessage();
     }
 
     bindEvents() {
-        const toggleBtn = document.getElementById('chatToggle');
-        const closeBtn = document.getElementById('closeChat');
-        const minimizeBtn = document.getElementById('minimizeChat');
-        const sendBtn = document.getElementById('sendMessage');
+        const chatToggle = document.getElementById('chatToggle');
         const chatInput = document.getElementById('chatInput');
-        const suggestions = document.querySelectorAll('.suggestion-chip');
+        const sendButton = document.getElementById('sendMessage');
+        const minimizeBtn = document.getElementById('minimizeChat');
+        const closeBtn = document.getElementById('closeChat');
+        const suggestionChips = document.querySelectorAll('.suggestion-chip');
 
-        toggleBtn.addEventListener('click', () => this.toggleChat());
-        closeBtn.addEventListener('click', () => this.closeChat());
-        minimizeBtn.addEventListener('click', () => this.minimizeChat());
-        sendBtn.addEventListener('click', () => this.sendMessage());
-        
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.sendMessage();
-            }
-        });
+        if (chatToggle) {
+            chatToggle.addEventListener('click', () => this.toggleChat());
+        }
 
-        suggestions.forEach(chip => {
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            });
+
+            chatInput.addEventListener('input', () => {
+                this.handleTyping();
+            });
+        }
+
+        if (sendButton) {
+            sendButton.addEventListener('click', () => this.sendMessage());
+        }
+
+        if (minimizeBtn) {
+            minimizeBtn.addEventListener('click', () => this.minimizeChat());
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.closeChat());
+        }
+
+        suggestionChips.forEach(chip => {
             chip.addEventListener('click', () => {
                 const message = chip.getAttribute('data-message');
-                chatInput.value = message;
-                this.sendMessage();
+                if (message) {
+                    chatInput.value = message;
+                    this.sendMessage();
+                }
             });
         });
     }
@@ -108,29 +66,40 @@ class GeminiChatbot {
         const chatbot = document.getElementById('geminiChatbot');
         const notification = document.getElementById('chatNotification');
         
-        if (this.isOpen) {
-            this.closeChat();
-        } else {
-            chatbot.classList.add('active');
-            this.isOpen = true;
-            notification.style.display = 'none';
+        if (chatbot) {
+            this.isOpen = !this.isOpen;
+            chatbot.classList.toggle('active', this.isOpen);
             
-            // Focus on input
-            setTimeout(() => {
-                document.getElementById('chatInput').focus();
-            }, 300);
+            if (this.isOpen) {
+                this.focusInput();
+                if (notification) {
+                    notification.style.display = 'none';
+                }
+            }
         }
-    }
-
-    closeChat() {
-        const chatbot = document.getElementById('geminiChatbot');
-        chatbot.classList.remove('active', 'minimized');
-        this.isOpen = false;
     }
 
     minimizeChat() {
         const chatbot = document.getElementById('geminiChatbot');
-        chatbot.classList.toggle('minimized');
+        if (chatbot) {
+            this.isMinimized = !this.isMinimized;
+            chatbot.classList.toggle('minimized', this.isMinimized);
+        }
+    }
+
+    closeChat() {
+        this.isOpen = false;
+        const chatbot = document.getElementById('geminiChatbot');
+        if (chatbot) {
+            chatbot.classList.remove('active');
+        }
+    }
+
+    focusInput() {
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) {
+            setTimeout(() => chatInput.focus(), 300);
+        }
     }
 
     async sendMessage() {
@@ -142,88 +111,124 @@ class GeminiChatbot {
         // Add user message
         this.addMessage(message, 'user');
         chatInput.value = '';
-
+        
         // Show typing indicator
         this.showTypingIndicator();
-
+        
         try {
-            // Get auth token
+            // Get AI response
+            const response = await this.getGeminiResponse(message);
+            this.hideTypingIndicator();
+            this.addMessage(response, 'bot');
+        } catch (error) {
+            this.hideTypingIndicator();
+            this.addMessage('I apologize, but I\'m experiencing technical difficulties. Please try again later.', 'bot');
+        }
+    }
+
+    async getGeminiResponse(message) {
+        try {
             const token = localStorage.getItem('authToken');
-            
             const response = await fetch('/api/chat/gemini', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': token ? `Bearer ${token}` : ''
+                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    message: message,
-                    context: this.getContext()
+                body: JSON.stringify({ 
+                    message,
+                    context: this.getConversationContext()
                 })
             });
 
+            if (!response.ok) {
+                throw new Error('Failed to get response');
+            }
+
             const data = await response.json();
-            
-            // Remove typing indicator
-            this.hideTypingIndicator();
-            
-            // Add bot response
-            this.addMessage(data.response, 'bot');
-            
+            return data.response;
         } catch (error) {
-            console.error('Chat error:', error);
-            this.hideTypingIndicator();
-            this.addMessage('I apologize, but I\'m having trouble connecting right now. Please try again later.', 'bot');
+            console.error('Gemini API error:', error);
+            return this.getFallbackResponse(message);
         }
     }
 
-    addMessage(content, sender) {
+    getFallbackResponse(message) {
+        const lowerMessage = message.toLowerCase();
+        
+        if (lowerMessage.includes('project')) {
+            return "Yash has worked on various exciting projects including ManasMitra (an AI mental health platform), Docker management systems, AWS automation tools, and interactive web applications. You can explore them in the projects section!";
+        } else if (lowerMessage.includes('skill') || lowerMessage.includes('technology')) {
+            return "Yash is skilled in AI/ML (Python, TensorFlow, PyTorch), web development (JavaScript, React, Flask), cloud technologies (AWS, Docker, Kubernetes), and databases (MySQL, MongoDB). He's constantly learning new technologies!";
+        } else if (lowerMessage.includes('experience')) {
+            return "Yash is currently pursuing BTech in AI & Data Science and has completed internships in robotics and is currently interning at LinuxWorld Informatics Pvt Ltd, focusing on DevOps, ML, and cloud technologies.";
+        } else if (lowerMessage.includes('contact')) {
+            return "You can reach Yash at yashagarwala2709@gmail.com or connect with him on LinkedIn. He's always open to discussing AI, technology, and potential collaborations!";
+        } else {
+            return "Hello! I'm here to help you learn about Yash Agarwal's work in AI, machine learning, and software development. Feel free to ask about his projects, skills, or experience!";
+        }
+    }
+
+    getConversationContext() {
+        return this.messages.slice(-5).map(msg => `${msg.type}: ${msg.content}`).join('\n');
+    }
+
+    addMessage(content, type) {
         const messagesContainer = document.getElementById('chatMessages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}-message`;
+        if (!messagesContainer) return;
+
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${type}-message`;
         
-        const avatar = sender === 'bot' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
-        
-        messageDiv.innerHTML = `
+        messageElement.innerHTML = `
             <div class="message-avatar">
-                ${avatar}
+                <i class="fas fa-${type === 'user' ? 'user' : 'robot'}"></i>
             </div>
             <div class="message-content">
                 <p>${content}</p>
             </div>
         `;
-        
-        messagesContainer.appendChild(messageDiv);
+
+        messagesContainer.appendChild(messageElement);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        
-        // Store in history
-        this.messageHistory.push({ content, sender, timestamp: Date.now() });
-        
+
+        // Store message
+        this.messages.push({ type, content, timestamp: Date.now() });
+        this.saveChatHistory();
+
         // Animate message appearance
+        messageElement.style.opacity = '0';
+        messageElement.style.transform = 'translateY(20px)';
+        
         setTimeout(() => {
-            messageDiv.classList.add('animate-in');
+            messageElement.style.transition = 'all 0.3s ease';
+            messageElement.style.opacity = '1';
+            messageElement.style.transform = 'translateY(0)';
         }, 100);
     }
 
     showTypingIndicator() {
         const messagesContainer = document.getElementById('chatMessages');
-        const typingDiv = document.createElement('div');
-        typingDiv.id = 'typingIndicator';
-        typingDiv.className = 'message bot-message typing';
-        typingDiv.innerHTML = `
+        if (!messagesContainer) return;
+
+        const typingElement = document.createElement('div');
+        typingElement.className = 'message bot-message typing-indicator';
+        typingElement.id = 'typingIndicator';
+        
+        typingElement.innerHTML = `
             <div class="message-avatar">
                 <i class="fas fa-robot"></i>
             </div>
             <div class="message-content">
                 <div class="typing-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
                 </div>
             </div>
         `;
-        
-        messagesContainer.appendChild(typingDiv);
+
+        messagesContainer.appendChild(typingElement);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         this.isTyping = true;
     }
@@ -236,28 +241,65 @@ class GeminiChatbot {
         this.isTyping = false;
     }
 
-    getContext() {
-        return {
-            currentPage: window.location.pathname,
-            userAgent: navigator.userAgent,
-            timestamp: Date.now(),
-            messageCount: this.messageHistory.length
-        };
+    handleTyping() {
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendMessage');
+        
+        if (chatInput && sendButton) {
+            const hasText = chatInput.value.trim().length > 0;
+            sendButton.style.opacity = hasText ? '1' : '0.5';
+            sendButton.disabled = !hasText;
+        }
     }
 
-    showWelcomeMessage() {
-        // Show notification badge
+    addWelcomeMessage() {
         setTimeout(() => {
-            const notification = document.getElementById('chatNotification');
-            if (notification) {
-                notification.style.display = 'flex';
-                notification.classList.add('pulse');
+            if (this.messages.length === 0) {
+                this.addMessage(
+                    "Hello! I'm Gemini AI, Yash's intelligent assistant. I can help you navigate his portfolio, answer questions about his projects, or discuss his technical expertise. How can I assist you today?",
+                    'bot'
+                );
             }
-        }, 2000);
+        }, 1000);
+    }
+
+    saveChatHistory() {
+        try {
+            localStorage.setItem('chatHistory', JSON.stringify(this.messages.slice(-20))); // Keep last 20 messages
+        } catch (error) {
+            console.error('Failed to save chat history:', error);
+        }
+    }
+
+    loadChatHistory() {
+        try {
+            const history = localStorage.getItem('chatHistory');
+            if (history) {
+                this.messages = JSON.parse(history);
+                this.messages.forEach(msg => {
+                    this.addMessage(msg.content, msg.type);
+                });
+            }
+        } catch (error) {
+            console.error('Failed to load chat history:', error);
+        }
+    }
+
+    clearHistory() {
+        this.messages = [];
+        const messagesContainer = document.getElementById('chatMessages');
+        if (messagesContainer) {
+            messagesContainer.innerHTML = '';
+        }
+        localStorage.removeItem('chatHistory');
+        this.addWelcomeMessage();
     }
 }
 
 // Initialize Gemini Chatbot
 document.addEventListener('DOMContentLoaded', () => {
-    new GeminiChatbot();
+    window.geminiChatbot = new GeminiChatbot();
 });
+
+// Export for global access
+window.GeminiChatbot = GeminiChatbot;
